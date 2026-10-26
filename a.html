@@ -161,7 +161,9 @@ details.old .lessons{margin-top:16px}
 .qstate{display:inline-flex;align-items:center;gap:6px;font:600 13px/1 var(--ui);padding:7px 11px;border-radius:999px;background:var(--screen2);color:var(--dim);transition:background .3s,color .3s}
 .qstate::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .qcard.filled .qstate{background:color-mix(in srgb,var(--ok) 18%,var(--screen2));color:var(--ok)}
-.qtext{margin:0;font:600 19px/1.42 var(--ui);cursor:text}
+.qtext{margin:0;font:600 19px/1.42 var(--ui);cursor:text;white-space:pre-line;overflow-wrap:break-word}
+.resend{margin:0;padding:14px 16px;border-radius:var(--r-md);background:color-mix(in srgb,var(--ok) 14%,var(--screen));color:var(--light);font-size:15px}
+.resend b{color:var(--ok)}
 textarea{
   display:block;width:100%;min-height:132px;resize:none;overflow:hidden;
   font:17px/1.55 var(--ui);color:var(--light);
@@ -284,6 +286,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline
 
   <section id="s-q" class="step" hidden>
     <div class="me"><div class="me-l"><span class="av" id="ql-av"></span><span class="me-t"><small id="q-disc"></small><b id="q-lesson"></b></span></div><button class="link" data-go="lesson">Другой урок</button></div>
+    <p class="resend" id="resend" hidden><b>✓ Ответ уже отправлен.</b> Можно дописать и отправить ещё раз — засчитается последний вариант.</p>
     <div class="qcard" id="card1">
       <div class="qtop"><span class="qn">01</span><span class="qstate" id="st1">Нет ответа</span></div>
       <label class="qtext" for="a1" id="q1"></label>
@@ -301,7 +304,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline
       <button class="send" id="send" disabled>Отправить ответ</button>
       <div class="msg" id="msg" role="status" aria-live="polite"></div>
     </div>
-    <p class="hint">Ответ отправляется один раз. Исправить его потом нельзя.</p>
+    <p class="hint" id="q-hint">Ответ отправляется один раз. Исправить его потом нельзя.</p>
   </section>
 
   <section id="s-done" class="step" hidden>
@@ -333,6 +336,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline
       <p class="what" id="done-what"></p>
       <p id="done-p">Ответ у преподавателя. Можно убирать телефон.</p>
       <span class="stamp" id="stamp"></span>
+      <button class="link" id="more" hidden>Дописать ответ</button>
       <button class="link" id="again" hidden>Пройти ещё раз (демо)</button>
     </div>
   </section>
@@ -353,7 +357,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline
     <span class="grab"></span>
     <h3 id="sh-h">Отправляем?</h3>
     <p class="warn" id="sh-warn" hidden></p>
-    <p>После отправки исправить ответ нельзя.</p>
+    <p id="sh-p">После отправки исправить ответ нельзя.</p>
     <div class="sheet-btns"><button class="ghost" data-close>Вернуться</button><button class="send ready" id="go">Отправить</button></div>
   </div>
 </div>
@@ -390,7 +394,8 @@ function show(id){
 }
 function fmt(d){ return d.slice(8) + '.' + d.slice(5,7); }
 function sentKey(l, st){ return 'nht-sent-' + l + '-' + st; }
-function answered(l, st){ return !DEMO && ((D.answered[l] || []).includes(st) || store.get(sentKey(l, st)) === '1'); }
+function answered(l, st){ return (D.answered[l] || []).includes(st) || store.get(sentKey(l, st)) === '1'; }
+function locked(l){ return answered(l.id, me) && !l.multi; }
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 function student(){ return D.students.find(s => s.id === me); }
 function stIndex(id){ return Math.max(0, D.students.findIndex(s => s.id === id)); }
@@ -411,13 +416,13 @@ function renderWho(){
 }
 function ticket(l, i){
   const done = answered(l.id, me);
-  const b = el('button', 'ticket' + (done ? ' done' : ''));
+  const b = el('button', 'ticket' + (done && !l.multi ? ' done' : ''));
   b.style.setProperty('--i', i); b.style.setProperty('--c', l.color || 'var(--lamp)');
   const row = el('span', 'row');
   row.append(el('span', 'pill disc', l.disc));
   row.append(el('span', 'pill' + (l.today ? ' now' : ''), l.today ? 'Сегодня' : fmt(l.date)));
   if (done) row.append(el('span', 'pill sent', '✓ Отправлено'));
-  const go = el('span', 'go'); go.innerHTML = done ? '✓' : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const go = el('span', 'go'); go.innerHTML = done && !l.multi ? '✓' : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   b.append(row, el('span', 't', l.title), go);
   b.onclick = () => openLesson(l);
   return b;
@@ -430,7 +435,7 @@ function afterWho(){
   meBar();
   const today = D.lessons.filter(l => l.today), old = D.lessons.filter(l => !l.today);
   if (pre){ const l = D.lessons.find(x => x.id === pre); if (l) return openLesson(l); }
-  if (today.length === 1 && !answered(today[0].id, me) && !old.some(l => !answered(l.id, me))) return openLesson(today[0]);
+  if (today.length === 1 && !locked(today[0]) && !old.some(l => !answered(l.id, me))) return openLesson(today[0]);
   $('today').replaceChildren(...today.map(ticket));
   if (!today.length) $('today').replaceChildren(el('p', 'empty', 'Сегодня уроков с самостоятельной нет. Если отвечаете за прошлый урок — откройте список ниже.'));
   $('old').replaceChildren(...old.map(ticket));
@@ -457,7 +462,9 @@ function sync(){
 }
 function openLesson(l){
   lesson = l;
-  if (answered(l.id, me)) return done(false);
+  if (locked(l)) return done(false);
+  $('resend').hidden = !(l.multi && answered(l.id, me));
+  $('q-hint').textContent = l.multi ? 'Можно отправлять несколько раз, пока ответ не проверен: засчитывается последняя отправка.' : 'Ответ отправляется один раз. Исправить его потом нельзя.';
   $('q-disc').textContent = l.disc + (l.today ? ' · сегодня' : ' · ' + fmt(l.date));
   $('q-lesson').textContent = l.title;
   $('ql-av').textContent = l.disc[0]; $('ql-av').style.setProperty('--c', l.color || 'var(--lamp)');
@@ -484,6 +491,7 @@ function openSheet(){
   const e1 = !$('a1').value.trim(), e2 = !$('a2').value.trim();
   $('sh-warn').hidden = !(e1 || e2);
   $('sh-warn').textContent = (e1 ? 'Первый' : 'Второй') + ' вопрос без ответа — за него будет 0 баллов.';
+  $('sh-p').textContent = lesson.multi ? 'Потом можно дописать и отправить снова — засчитается последний вариант.' : 'После отправки исправить ответ нельзя.';
   $('sheet').hidden = false;
   setTimeout(() => $('go').focus(), 50);
 }
@@ -513,7 +521,8 @@ function done(fresh){
   $('done-what').textContent = lesson.title;
   const nm = student().name; $('sl-who').textContent = nm; $('sl-who').setAttribute('font-size', nm.length > 17 ? 15 : 19);
   $('done-h').textContent = fresh ? 'Снято!' : 'Этот дубль уже снят';
-  $('done-p').textContent = fresh ? 'Ответ у преподавателя. Можно убирать телефон.' : 'На этот урок вы уже ответили. Второй раз отправить нельзя.';
+  $('done-p').textContent = !fresh ? 'На этот урок вы уже ответили. Второй раз отправить нельзя.' : lesson.multi ? 'Ответ у преподавателя. Время ещё есть — можно дописать, засчитается последний вариант.' : 'Ответ у преподавателя. Можно убирать телефон.';
+  $('more').hidden = !(fresh && lesson.multi);
   const t = new Date();
   $('stamp').textContent = fresh ? '✓ Отправлено в ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0') : '✓ Ответ на месте';
   $('again').hidden = !DEMO;
@@ -523,7 +532,8 @@ function done(fresh){
   sl.classList.add('clap'); dt.classList.add('show');
   if (fresh){ burst(); if (navigator.vibrate) setTimeout(() => navigator.vibrate([20, 40, 30]), 560); }
 }
-$('again').onclick = () => { store.set(draftKey(), '{}'); afterWho(); };
+$('again').onclick = () => { store.set(draftKey(), '{}'); for (const k in D.answered) D.answered[k] = []; afterWho(); };
+$('more').onclick = () => openLesson(lesson);
 
 $('go').onclick = async () => {
   closeSheet();
@@ -534,13 +544,13 @@ $('go').onclick = async () => {
     else {
       const r = await fetch(API + '?api=st_send&d=' + encodeURIComponent(JSON.stringify({lesson:lesson.id, st:me, q1:a1, q2:a2}))).then(r => r.json());
       if (!r.ok) throw new Error(r.error || 'Сервер не принял ответ');
-      store.set(sentKey(lesson.id, me), '1');
-      (D.answered[lesson.id] = D.answered[lesson.id] || []).push(me);
+      if (!lesson.multi) store.set(sentKey(lesson.id, me), '1');
     }
+    if (!answered(lesson.id, me)) (D.answered[lesson.id] = D.answered[lesson.id] || []).push(me);
     done(true);
   } catch(e){
     m.className = 'msg err';
-    if (/уже отправлен/.test(e.message)){ m.textContent = 'Ответ на этот урок уже отправлен.'; store.set(sentKey(lesson.id, me), '1'); setTimeout(() => done(false), 900); }
+    if (/уже отправлен|уже проверен/.test(e.message)){ m.textContent = e.message + '.'; store.set(sentKey(lesson.id, me), '1'); setTimeout(() => done(false), 900); }
     else m.textContent = 'Не отправилось: ' + e.message + '. Текст сохранён — нажмите ещё раз.';
   } finally { btn.classList.remove('busy'); sync(); }
 };
@@ -551,6 +561,9 @@ function demoData(students){
   return {ok:true, today, students: students && students.length ? students : DEMO_STUDENTS, answered:{}, lessons:[
     {id:'demo-1', title:'Народная педагогика: как учили без школы', disc:'НХТ', color:'#e0a96d', date:today, today:true,
      q1:'Назовите три части детского фольклора и приведите пример к каждой.', q2:'Чем «школа на ходу» отличается от обучения в художественной школе?'},
+    {id:'demo-k1', title:'Контрольная точка К1', disc:'НХТ', color:'#e0a96d', date:today, today:true, multi:true, max:8,
+     q1:'Четвероклассники в школьном кружке разучили со слов бабушки одного из учеников старинную колыбельную её села и спели на празднике.\nа) Это НХТ в широком значении? А в узком? Объясните каждое.\nб) К какому из пяти видов это относится?\nв) Измените в ситуации одну деталь так, чтобы в узком значении это перестало быть НХТ, а в широком осталось.',
+     q2:'Вы ведёте кружок для детей 6–7 лет. Выберите одно короткое произведение из пройденного: потешку, пословицу, загадку, считалку, колыбельную или прибаутку (кроме загадки про ель). Запишите его и ответьте:\nа) смысл своими словами;\nб) что ребёнок с ним делает на занятии;\nв) какой вопрос покажет, что ребёнок понял, а не просто запомнил;\nг) два условия, почему это подходит именно детям 6–7 лет.'},
     {id:'demo-2', title:'Сценарий: форма и разметка', disc:'Операторское', color:'#7fa8e0', date:'2026-10-23', today:false,
      q1:'Запишите по правилам сценария начало сцены: в столовой колледжа днём студент роняет поднос. Заголовок, ремарка, одна реплика.', q2:'Чем литературный сценарий отличается от режиссёрского?'}
   ]};
