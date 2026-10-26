@@ -246,7 +246,7 @@ const ST = {todo:'не проведён', part:'частично', done:'про�
 const SUB = ['', 'work', 'fix', 'done'], SUBL = {'':'—', work:'в работе', fix:'доработка', done:'сдано'};
 const DN = ['Понедельник','Вторник','Среда','Четверг','Пятница'];
 const MN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-const MARKS = ['', '5', '4', '3', 'доработка'];
+const MARKS = ['', '5', '4', '3', '2', 'доработка'];
 let meta = null, lessons = new Map(), labs = new Map(), subs = new Map(), answers = new Map(), cur = null, pst = 'todo', first = true;
 let weekStart = monday(new Date());
 
@@ -311,24 +311,24 @@ function renderAns(){
   if (!l){ $('ansinfo').textContent = 'Уроков с самостоятельной пока не было.'; renderTot(); return; }
   const st = meta?.students || [], got = st.filter(s => answers.get(l.id + '~' + s.id)), miss = st.filter(s => !answers.get(l.id + '~' + s.id));
   $('ansinfo').textContent = 'Ответили ' + got.length + ' из ' + st.length + '. Проверка идёт сама в 16:50; оценку можно поправить вручную — проверка её не перезапишет.';
-  const q = [l.selfwork.q1, l.selfwork.q2];
+  const q = [l.selfwork.q1, l.selfwork.q2], qmax = (l.selfwork.max || 4) / 2, qw = l.selfwork.max > 4 ? 'Задание' : 'Вопрос';
   for (const s of got){ const id = l.id + '~' + s.id, a = answers.get(id);
-    const sc = val => { const e = el('select', {}, ['', '0', '1', '2'].map(m => el('option', {value:m}, m === '' ? '—' : m))); e.value = val ?? ''; return e; };
+    const sc = val => { const e = el('select', {}, ['', ...Array.from({length: qmax + 1}, (_, i) => String(i))].map(m => el('option', {value:m}, m === '' ? '—' : m))); e.value = val ?? ''; return e; };
     const s1 = sc(a.score1), s2 = sc(a.score2), mk = el('select', {}, MARKS.map(m => el('option', {value:m}, m || 'не проверено'))); mk.value = a.mark || '';
     const nt = el('input', {value:a.note || '', placeholder:'комментарий студенту'}), ms = el('span', {class:'sub'});
     const save = el('button', {class:'btn', onclick: async () => { const p = {score1:s1.value === '' ? '' : +s1.value, score2:s2.value === '' ? '' : +s2.value, mark:mk.value, note:nt.value.trim(), byTeacher:true};
       ms.textContent = 'Сохраняю…'; try { await write('answers', id, p, 'update'); Object.assign(a, p); ms.textContent = 'Сохранено'; renderTot(); } catch(e){ ms.textContent = 'Не сохранилось: ' + e.message; } }}, 'Сохранить');
     box.append(el('div', {class:'arow'},
       el('div', {class:'who'}, el('strong', {}, s.name), el('span', {class:'row', style:'gap:10px'}, el('span', {class:'sub'}, a.time ? new Date(a.time).toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : ''), el('span', {class:'mark ' + markClass(a.mark)}, a.mark || 'не проверено'))),
-      [0,1].map(i => el('div', {class:'qa'}, el('span', {class:'qq'}, (i + 1) + '. ' + q[i]), el('span', {}, (i ? a.q2 : a.q1) || '—'))),
+      [0,1].map(i => el('div', {class:'qa'}, el('span', {class:'qq', style:'white-space:pre-line'}, (i + 1) + '. ' + q[i]), el('span', {}, (i ? a.q2 : a.q1) || '—'))),
       a.note && !a.byTeacher ? el('div', {class:'note-auto'}, 'Комментарий проверки: ' + a.note) : null,
-      el('div', {class:'ed'}, el('label', {}, 'Вопрос 1', s1), el('label', {}, 'Вопрос 2', s2), el('label', {}, 'Оценка', mk), nt, save, ms)));
+      el('div', {class:'ed'}, el('label', {}, qw + ' 1', s1), el('label', {}, qw + ' 2', s2), el('label', {}, 'Оценка', mk), nt, save, ms)));
   }
   if (miss.length) box.append(el('div', {class:'sub'}, 'Нет ответа:'), el('div', {class:'miss'}, miss.map(s => el('span', {}, s.name))));
   renderTot();
 }
 function renderTot(){
-  const st = meta?.students || [], ls = swLessons().filter(l => [...answers.values()].some(a => a.lesson === l.id)), max = ls.length * 4;
+  const st = meta?.students || [], ls = swLessons().filter(l => [...answers.values()].some(a => a.lesson === l.id)), max = ls.reduce((t, l) => t + (l.selfwork.max || 4), 0);
   const row = s => { let sum = 0, n = 0; for (const l of ls){ const a = answers.get(l.id + '~' + s.id); if (a){ n++; sum += (+a.score1 || 0) + (+a.score2 || 0); } } const p = max ? Math.round(sum / max * 100) : 0;
     return el('tr', {}, el('td', {}, s.name), el('td', {class:'num'}, n + ' из ' + ls.length), el('td', {class:'num'}, sum + ' из ' + max), el('td', {class:'num'}, max ? p + '%' : '—'), el('td', {}, max ? (p >= 80 ? '5' : p >= 60 ? '4' : p >= 40 ? '3' : '—') : '—')); };
   $('anstot').replaceChildren(el('table', {}, el('thead', {}, el('tr', {}, ['Студент', 'Ответов', 'Баллы', '%', 'Оценка'].map(h => el('th', {}, h)))), el('tbody', {}, st.map(row))));
