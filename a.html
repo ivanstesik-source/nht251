@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Onest:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Dela+Gothic+One&family=Onest:wght@400;500;600;700&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -221,20 +221,58 @@ textarea::placeholder{color:var(--dim)}
 .sheet-btns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px;margin-top:6px}
 .ghost{font:600 16px var(--ui);color:var(--light);background:var(--screen2);border:1.5px solid var(--line);border-radius:var(--r-md);padding:16px;cursor:pointer}
 
-/* хлопушка */
-.slate-wrap{display:grid;place-items:center;padding:16px 0 4px}
-.slate{width:min(320px,84vw);overflow:visible;filter:drop-shadow(0 30px 40px rgba(0,0,0,.4))}
-.slate .arm{transform-origin:14px 54px;transform:rotate(-26deg)}
-.slate.clap .arm{animation:clap .42s cubic-bezier(.6,-0.3,.4,1.4) .15s forwards}
-@keyframes clap{0%{transform:rotate(-26deg)}70%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
-.slate.clap{animation:drop .5s var(--spring) both, shake .22s ease .55s}
-@keyframes drop{from{opacity:0;transform:translateY(-30px) scale(.9)}}
-@keyframes shake{0%,100%{transform:none}35%{transform:translateY(4px) rotate(-.7deg)}70%{transform:translateY(-1px) rotate(.3deg)}}
+/* финал: видоискатель / затвор + полароид / экспорт из монтажки */
+.stage{position:relative;width:min(330px,86vw);aspect-ratio:4/3;margin:10px auto 6px}
+.vf,.nle{position:absolute;inset:0;border-radius:18px;overflow:hidden;background:#0b0c18;box-shadow:0 30px 60px -22px rgba(0,0,0,.65);transition:opacity .35s ease}
+.scene{position:absolute;inset:-12%;background:radial-gradient(38% 48% at 30% 42%,#ffb34770,transparent 70%),radial-gradient(44% 54% at 72% 64%,#7a5cff70,transparent 70%),radial-gradient(28% 36% at 62% 24%,#5ee0a85c,transparent 70%),#15182e;filter:blur(6px)}
+.corner{position:absolute;width:22px;height:22px;border:2.5px solid rgba(255,255,255,.85)}
+.corner.c1{top:12px;left:12px;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.corner.c2{top:12px;right:12px;border-left:0;border-bottom:0;border-top-right-radius:6px}
+.corner.c3{bottom:12px;left:12px;border-right:0;border-top:0;border-bottom-left-radius:6px}
+.corner.c4{bottom:12px;right:12px;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.vfl,.vfr{position:absolute;top:17px;font:700 11px/1 var(--ui);letter-spacing:.1em;color:#fff;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:6px}
+.vfl{left:44px}.vfr{right:44px}
+.vfl.rec::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff4d4d;animation:rec 1s steps(2) infinite}
+.vfbar{position:absolute;left:0;right:0;bottom:17px;display:flex;justify-content:center;gap:14px;font:600 11px/1 var(--ui);letter-spacing:.06em;color:rgba(255,255,255,.85);font-variant-numeric:tabular-nums}
+.cross{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px;opacity:.6;background:linear-gradient(#fff,#fff) center/100% 1.5px no-repeat,linear-gradient(#fff,#fff) center/1.5px 100% no-repeat}
+.blade{position:absolute;left:50%;top:50%;width:440px;height:440px;margin:-440px 0 0 -220px;transform-origin:50% 100%;background:linear-gradient(180deg,#363a5c,#1a1c30 85%);border-bottom:2px solid #6a70a8;transform:rotate(0) translateY(-280px)}
+.iris{position:absolute;inset:0;border-radius:18px;overflow:hidden;pointer-events:none}
+.flash{position:absolute;inset:-40px;background:#fff;opacity:0;pointer-events:none;border-radius:24px}
+.polaroid{position:absolute;left:50%;top:50%;width:58%;background:#fbfaf5;padding:9px 9px 0;border-radius:3px;box-shadow:0 26px 44px -14px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.05);opacity:0;transform:translate(-50%,-50%)}
+.polaroid .ph{position:relative;aspect-ratio:1;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,#ffc94d,#ff7a59 48%,#7a5cff)}
+.polaroid .ph::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 30% 30%,rgba(255,255,255,.35),transparent 70%)}
+.polaroid .ph .fog{position:absolute;inset:0;background:#2a2c3e}
+.polaroid .ph svg{position:relative;width:52%;filter:drop-shadow(0 6px 10px rgba(0,0,0,.25))}
+.polaroid .cap{font:500 23px/1.05 'Caveat',cursive;color:#24263c;padding:9px 2px 12px;text-align:center;overflow-wrap:break-word}
+.polaroid .cap small{display:block;font-size:17px;color:#6a6c86;margin-top:2px}
 .check{stroke-dasharray:70;stroke-dashoffset:70}
-.slate.clap .check{animation:draw .5s cubic-bezier(.6,0,.2,1) .75s forwards}
-@keyframes draw{to{stroke-dashoffset:0}}
+.subject{position:absolute;left:50%;top:50%;width:46%;transform:translate(-50%,-50%) scale(1.14);filter:blur(14px);opacity:.9}
+.subject svg{display:block;width:100%}
+.af{position:absolute;width:30px;height:24px;margin:-12px 0 0 -15px;border:2px solid rgba(255,255,255,.95);border-radius:3px;opacity:0}
+.af.lock{width:64px;height:52px;margin:-26px 0 0 -32px;left:50%;top:50%;border-color:#5ee0a8;box-shadow:0 0 0 4px rgba(94,224,168,.22),0 0 22px rgba(94,224,168,.45)}
+.vfl.afs{color:#fff}.vfl.afs.ok{color:#5ee0a8}
+.nle{background:#0f1124;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:8px;padding:10px}
+.mon{position:relative;border-radius:10px;overflow:hidden;background:#05060d}
+.mon .scene{filter:blur(10px);opacity:.75}
+.mon .tcm{position:absolute;right:8px;bottom:7px;font:700 11px/1 var(--ui);color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.06em;background:rgba(0,0,0,.45);padding:4px 6px;border-radius:5px}
+.mon .lbl{position:absolute;left:8px;top:7px;font:700 10px/1 var(--ui);letter-spacing:.12em;color:rgba(255,255,255,.7)}
+.tl{position:relative;display:grid;gap:5px;padding-top:14px}
+.ruler{position:absolute;left:0;right:0;top:0;height:9px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 1px,transparent 1px 12px)}
+.trk{position:relative;height:24px;border-radius:6px;background:#1b1e3a;overflow:hidden}
+.clip{position:absolute;top:2px;bottom:2px;border-radius:4px;font:700 10px/20px var(--ui);color:#16182e;padding:0 7px;white-space:nowrap;overflow:hidden;opacity:0}
+.clip.a{left:1%;width:47%;background:#ffc94d}.clip.b{left:50%;width:48%;background:#8fb4ff}
+.wave{position:absolute;inset:3px 4px;display:flex;align-items:center;gap:2px}
+.wave i{flex:1;height:100%;background:#5ee0a8;border-radius:1px;opacity:.85;transform:scaleY(0);transform-origin:center}
+.ph-head{position:absolute;top:2px;bottom:0;left:0;width:2px;background:#ff5a5a;box-shadow:0 0 8px #ff5a5a}
+.ph-head::before{content:"";position:absolute;left:-5px;top:-2px;border:6px solid transparent;border-top-color:#ff5a5a}
+.exp{position:absolute;left:50%;top:46%;width:80%;transform:translate(-50%,-50%) scale(.92);opacity:0;background:#20244a;border:1px solid #3c4274;border-radius:14px;padding:14px;display:grid;gap:10px;box-shadow:0 20px 40px -10px rgba(0,0,0,.7)}
+.exp .fn{font:600 13px/1.25 var(--ui);color:#f5f3ff;overflow-wrap:anywhere}
+.exp .row2{display:flex;justify-content:space-between;font:600 12px/1 var(--ui);color:#a7aad0;font-variant-numeric:tabular-nums}
+.exp .bar{height:8px;border-radius:4px;background:#2c3156;overflow:hidden}
+.exp .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffc94d,#ff9f43);transition:background .3s}
+.exp.ok .bar i{background:#5ee0a8}.exp.ok .row2 b{color:#5ee0a8}
 .done-text{text-align:center;display:grid;gap:10px;justify-items:center;opacity:0}
-.done-text.show{animation:in .55s var(--ease) 1s forwards}
+.done-text.show{animation:in .55s var(--ease) forwards}
 .done-text h2{font-size:40px}
 .done-text p{margin:0;color:var(--titles);max-width:30ch}
 .done-text .what{color:var(--light);font-weight:600;max-width:34ch;overflow-wrap:break-word}
@@ -251,7 +289,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline
 @media (max-width:360px){.names{grid-template-columns:minmax(0,1fr)}h2{font-size:23px}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}
-  .slate .arm{transform:none}.check{stroke-dashoffset:0}.done-text{opacity:1}
+  .check{stroke-dashoffset:0}.done-text{opacity:1}
 }
 </style>
 </head>
@@ -308,31 +346,9 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline
   </section>
 
   <section id="s-done" class="step" hidden>
-    <div class="slate-wrap">
-      <svg class="slate" id="slate" viewBox="0 0 320 250" role="img" aria-label="Хлопушка с галочкой">
-        <defs>
-          <pattern id="stripes" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
-            <rect width="40" height="40" fill="#f5f3ff"/><rect width="20" height="40" fill="#121427"/>
-          </pattern>
-        </defs>
-        <rect x="8" y="64" width="304" height="178" rx="14" fill="#121427" stroke="#f5f3ff" stroke-width="3"/>
-        <rect x="8" y="64" width="304" height="34" rx="6" fill="url(#stripes)" stroke="#f5f3ff" stroke-width="3"/>
-        <g class="arm"><rect x="8" y="20" width="304" height="34" rx="6" fill="url(#stripes)" stroke="#f5f3ff" stroke-width="3"/></g>
-        <circle cx="14" cy="54" r="7" fill="#ffc94d"/>
-        <g font-family="Onest, sans-serif" fill="#a7aad0" font-size="11" letter-spacing="1.5">
-          <text x="24" y="122">УРОК</text><text x="24" y="172">КТО</text><text x="234" y="172">ДУБЛЬ</text>
-        </g>
-        <line x1="20" y1="148" x2="300" y2="148" stroke="#30345a" stroke-width="2"/>
-        <line x1="222" y1="152" x2="222" y2="230" stroke="#30345a" stroke-width="2"/>
-        <g font-family="Onest, sans-serif" fill="#f5f3ff" font-weight="600">
-          <text id="sl-lesson" x="24" y="140" font-size="15"></text>
-          <text id="sl-who" x="24" y="200" font-size="19"></text>
-        </g>
-        <path class="check" d="M242 200 l14 14 l32 -36" fill="none" stroke="#5ee0a8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
+    <div class="stage" id="stage" role="img" aria-label="Ответ принят"></div>
     <div class="done-text" id="done-text">
-      <h2 id="done-h">Снято!</h2>
+      <h2 id="done-h">Принято!</h2>
       <p class="what" id="done-what"></p>
       <p id="done-p">Ответ у преподавателя. Можно убирать телефон.</p>
       <span class="stamp" id="stamp"></span>
@@ -500,10 +516,81 @@ document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeSheet);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
 $('send').onclick = () => { if (sync()) openSheet(); };
 
+/* финальная анимация: фото — затвор и полароид, монтаж — экспорт, остальное — автофокус */
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const CHECK = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#fff" stroke-width="7" opacity=".9"/><path class="check" d="M30 52 l14 14 l27 -30" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function animKind(l){ const f = Q.get('anim'); if (f) return f; return /^photo/.test(l.id) ? 'shutter' : /^editing/.test(l.id) ? 'export' : 'focus'; }
+function haptic(p){ if (navigator.vibrate) try { navigator.vibrate(p) } catch(e){} }
+function esc(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function vfHTML(left, right, bar){ return '<div class="vf"><div class="scene"></div><span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span><span class="vfl ' + left[0] + '">' + left[1] + '</span><span class="vfr">' + right + '</span><div class="vfbar">' + bar + '</div></div>'; }
+function tc(el, start){ let f = start || 0; const t = setInterval(() => { if (!el.isConnected) return clearInterval(t); f++; const s = Math.floor(f / 25); el.textContent = '00:00:' + String(s).padStart(2,'0') + ':' + String(f % 25).padStart(2,'0'); }, 40); return t; }
+function drawCheck(root, delay){ const c = root.querySelector('.check'); if (c) c.animate([{strokeDashoffset:70},{strokeDashoffset:0}], {duration:REDUCED ? 1 : 450, delay:REDUCED ? 0 : delay, easing:'cubic-bezier(.6,0,.2,1)', fill:'forwards'}); }
+
+async function animShutter(st, name, sub){
+  st.innerHTML = vfHTML(['rec', 'REC'], '<span id="vtc">00:00:00:00</span>', '<span>F/2.8</span><span>1/250</span><span>ISO 400</span>') + '<span class="cross"></span>' +
+    '<div class="iris">' + [0,1,2,3,4,5].map(k => '<span class="blade" data-k="' + k + '"></span>').join('') + '</div><div class="flash"></div>' +
+    '<div class="polaroid"><div class="ph"><div class="fog"></div>' + CHECK + '</div><div class="cap">' + esc(name) + '<small>' + esc(sub) + '</small></div></div>';
+  const vf = st.querySelector('.vf'), cross = st.querySelector('.cross'), pol = st.querySelector('.polaroid');
+  if (REDUCED){ vf.style.opacity = 0; cross.remove(); st.querySelectorAll('.blade').forEach(b => b.remove()); pol.style.opacity = 1; pol.style.transform = 'translate(-50%,-50%) rotate(-4deg)'; st.querySelector('.fog').remove(); drawCheck(pol, 0); return; }
+  tc(st.querySelector('#vtc'));
+  await wait(550);
+  st.querySelectorAll('.blade').forEach(b => { const k = +b.dataset.k;
+    b.animate([{transform:'rotate(' + k*60 + 'deg) translateY(-280px)'}, {transform:'rotate(' + (k*60 + 30) + 'deg) translateY(0)'}], {duration:240, easing:'cubic-bezier(.7,0,.9,.5)', fill:'forwards'}); });
+  await wait(240);
+  haptic(25);
+  st.querySelector('.flash').animate([{opacity:0},{opacity:.95, offset:.15},{opacity:0}], {duration:520, easing:'ease-out'});
+  vf.style.opacity = 0; cross.style.opacity = 0;
+  st.querySelectorAll('.blade').forEach(b => b.animate([{opacity:1},{opacity:0}], {duration:300, fill:'forwards'}));
+  await wait(160);
+  pol.animate([{opacity:0, transform:'translate(-50%,10%) rotate(-14deg) scale(.86)'}, {opacity:1, transform:'translate(-50%,-52%) rotate(-2deg) scale(1.02)', offset:.7}, {opacity:1, transform:'translate(-50%,-50%) rotate(-4deg) scale(1)'}], {duration:700, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'});
+  st.querySelector('.fog').animate([{opacity:1},{opacity:.85, offset:.2},{opacity:0}], {duration:1500, delay:350, easing:'ease-in-out', fill:'forwards'});
+  drawCheck(pol, 900);
+  await wait(800);
+}
+
+async function animFocus(st){
+  st.innerHTML = vfHTML(['afs', 'AF·S'], '<span>4K 25P</span>', '<span>F/2.8</span><span>1/125</span><span>ISO 400</span>') +
+    '<div class="subject">' + CHECK.replace('class="check"', 'class="check" style="stroke-dashoffset:0"') + '</div>' +
+    '<span class="af" id="af1"></span><span class="af lock" id="aflock" style="opacity:0"></span>';
+  const subj = st.querySelector('.subject'), af = st.querySelector('#af1'), lock = st.querySelector('#aflock'), lbl = st.querySelector('.vfl');
+  if (REDUCED){ subj.style.filter = 'none'; subj.style.transform = 'translate(-50%,-50%)'; lock.style.opacity = 1; lbl.classList.add('ok'); return; }
+  await wait(250);
+  const pts = [[28,34],[70,62],[40,70],[64,30],[52,46]];
+  for (const [x, y] of pts){ af.style.left = x + '%'; af.style.top = y + '%'; af.animate([{opacity:0},{opacity:1, offset:.2},{opacity:1, offset:.7},{opacity:0}], {duration:150}); subj.style.filter = 'blur(' + (8 + Math.random()*8) + 'px)'; await wait(140); }
+  lock.animate([{opacity:0, transform:'scale(1.6)'}, {opacity:1, transform:'scale(1)'}], {duration:200, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'});
+  haptic([12, 40, 12]); lbl.classList.add('ok'); lbl.textContent = 'AF ●';
+  subj.animate([{filter:subj.style.filter, transform:'translate(-50%,-50%) scale(1.14)'}, {filter:'blur(0px)', transform:'translate(-50%,-50%) scale(1)'}], {duration:300, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'});
+  lock.animate([{boxShadow:'0 0 0 4px rgba(94,224,168,.22),0 0 22px rgba(94,224,168,.45)'}, {boxShadow:'0 0 0 10px rgba(94,224,168,0),0 0 30px rgba(94,224,168,.6)'}], {duration:600, delay:220, iterations:2});
+  await wait(500);
+}
+
+async function animExport(st, name){
+  const file = 'Ответ_' + name.split(' ')[0] + '.mp4';
+  st.innerHTML = '<div class="nle"><div class="mon"><div class="scene"></div><span class="lbl">ПРОСМОТР</span><span class="tcm" id="vtc">00:00:00:00</span></div>' +
+    '<div class="tl"><div class="ruler"></div><div class="trk"><span class="clip a">V1 · Ответ 1</span><span class="clip b">V1 · Ответ 2</span></div>' +
+    '<div class="trk"><div class="wave">' + Array.from({length:44}, () => '<i></i>').join('') + '</div></div><span class="ph-head"></span></div></div>' +
+    '<div class="exp"><div class="fn">Экспорт: ' + esc(file) + '</div><div class="bar"><i></i></div><div class="row2"><b id="exs">Рендер…</b><span id="exp">0%</span></div></div>';
+  const ex = st.querySelector('.exp'), bar = ex.querySelector('.bar i'), head = st.querySelector('.ph-head');
+  st.querySelectorAll('.wave i').forEach(w => w.style.setProperty('--h', (.25 + Math.random()*.75).toFixed(2)));
+  const fin = () => { ex.classList.add('ok'); bar.style.width = '100%'; st.querySelector('#exp').textContent = '100%'; st.querySelector('#exs').textContent = 'Экспорт завершён ✓'; };
+  if (REDUCED){ st.querySelectorAll('.clip').forEach(c => c.style.opacity = 1); st.querySelectorAll('.wave i').forEach(w => w.style.transform = 'scaleY(' + w.style.getPropertyValue('--h') + ')'); ex.style.opacity = 1; ex.style.transform = 'translate(-50%,-50%)'; fin(); return; }
+  tc(st.querySelector('#vtc'));
+  st.querySelectorAll('.clip').forEach((c, i) => c.animate([{opacity:0, transform:'translateX(-30px)'}, {opacity:1, transform:'none'}], {duration:320, delay:120 + i*140, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'}));
+  st.querySelectorAll('.wave i').forEach((w, i) => w.animate([{transform:'scaleY(0)'}, {transform:'scaleY(' + w.style.getPropertyValue('--h') + ')'}], {duration:260, delay:300 + i*8, fill:'forwards'}));
+  head.animate([{left:'0%'}, {left:'100%'}], {duration:900, delay:450, easing:'linear', fill:'forwards'});
+  await wait(1300);
+  ex.animate([{opacity:0, transform:'translate(-50%,-50%) scale(.9)'}, {opacity:1, transform:'translate(-50%,-50%) scale(1)'}], {duration:260, easing:'cubic-bezier(.2,.8,.2,1)', fill:'forwards'});
+  const t0 = performance.now(), dur = 950;
+  await new Promise(res => { const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 2); bar.style.width = (e*100).toFixed(1) + '%'; st.querySelector('#exp').textContent = Math.round(e*100) + '%'; k < 1 ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); });
+  fin(); haptic([15, 30, 15]);
+  await wait(250);
+}
+
 function burst(){
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (REDUCED) return;
   const box = $('burst'), cols = ['#ffc94d','#ff9f43','#5ee0a8','#f5f3ff','#8fb4ff'];
-  const r = $('slate').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * .3;
+  const r = $('stage').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * .4;
   for (let i = 0; i < 34; i++){
     const p = document.createElement('i'); p.style.background = cols[i % cols.length];
     if (i % 3 === 0){ p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; }
@@ -513,24 +600,27 @@ function burst(){
       {opacity:1, transform:'translate(-50%,-50%) rotate(0)'},
       {opacity:1, transform:'translate(' + Math.cos(a)*d + 'px,' + (Math.sin(a)*d - 50) + 'px) rotate(' + Math.random()*360 + 'deg)', offset:.55},
       {opacity:0, transform:'translate(' + Math.cos(a)*d*1.1 + 'px,' + (Math.sin(a)*d + 160) + 'px) rotate(' + Math.random()*720 + 'deg)'}
-    ], {duration:1200 + Math.random()*600, delay:560, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards'}).onfinish = () => p.remove();
+    ], {duration:1200 + Math.random()*600, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards'}).onfinish = () => p.remove();
   }
 }
-function done(fresh){
-  $('sl-lesson').textContent = lesson.disc + ' · ' + (lesson.today ? 'сегодня' : fmt(lesson.date));
+let animRun = 0;
+async function done(fresh){
+  const run = ++animRun, nm = student().name, kind = animKind(lesson);
+  const sub = lesson.disc + ' · ' + fmt(lesson.date || new Date().toISOString().slice(0, 10));
   $('done-what').textContent = lesson.title;
-  const nm = student().name; $('sl-who').textContent = nm; $('sl-who').setAttribute('font-size', nm.length > 17 ? 15 : 19);
-  $('done-h').textContent = fresh ? 'Снято!' : 'Этот дубль уже снят';
-  $('done-p').textContent = !fresh ? 'На этот урок вы уже ответили. Второй раз отправить нельзя.' : lesson.multi ? 'Ответ у преподавателя. Время ещё есть — можно дописать, засчитается последний вариант.' : 'Ответ у преподавателя. Можно убирать телефон.';
+  $('done-h').textContent = fresh ? 'Принято!' : 'Ответ уже у преподавателя';
+  $('done-p').textContent = !fresh ? 'На этот урок вы уже ответили. Второй раз отправить нельзя.' : lesson.multi ? 'Время ещё есть — можно дописать, засчитается последний вариант.' : 'Можно убирать телефон.';
   $('more').hidden = !(fresh && lesson.multi);
   const t = new Date();
   $('stamp').textContent = fresh ? '✓ Отправлено в ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0') : '✓ Ответ на месте';
   $('again').hidden = !DEMO;
+  const dt = $('done-text'); dt.classList.remove('show');
   show('s-done');
-  const sl = $('slate'), dt = $('done-text');
-  sl.classList.remove('clap'); dt.classList.remove('show'); void sl.offsetWidth;
-  sl.classList.add('clap'); dt.classList.add('show');
-  if (fresh){ burst(); if (navigator.vibrate) setTimeout(() => navigator.vibrate([20, 40, 30]), 560); }
+  const st = $('stage');
+  await (kind === 'shutter' ? animShutter(st, nm, sub) : kind === 'export' ? animExport(st, nm) : animFocus(st));
+  if (run !== animRun) return;
+  void dt.offsetWidth; dt.classList.add('show');
+  if (fresh) burst();
 }
 $('again').onclick = () => { store.set(draftKey(), '{}'); for (const k in D.answered) D.answered[k] = []; afterWho(); };
 $('more').onclick = () => openLesson(lesson);
@@ -564,6 +654,10 @@ function demoData(students){
     {id:'demo-k1', title:'Контрольная точка К1', disc:'НХТ', color:'#e0a96d', date:today, today:true, multi:true, max:8,
      q1:'Четвероклассники в школьном кружке разучили со слов бабушки одного из учеников старинную колыбельную её села и спели на празднике.\nа) Это НХТ в широком значении? А в узком? Объясните каждое.\nб) К какому из пяти видов это относится?\nв) Измените в ситуации одну деталь так, чтобы в узком значении это перестало быть НХТ, а в широком осталось.',
      q2:'Вы ведёте кружок для детей 6–7 лет. Выберите одно короткое произведение из пройденного: потешку, пословицу, загадку, считалку, колыбельную или прибаутку (кроме загадки про ель). Запишите его и ответьте:\nа) смысл своими словами;\nб) что ребёнок с ним делает на занятии;\nв) какой вопрос покажет, что ребёнок понял, а не просто запомнил;\nг) два условия, почему это подходит именно детям 6–7 лет.'},
+    {id:'photo-demo', title:'Ручной режим и экспозиция', disc:'Фото', color:'#ff9f9f', date:'2026-10-23', today:false,
+     q1:'Что произойдёт с кадром, если закрыть диафрагму с f/2.8 до f/8 и не менять выдержку?', q2:'Почему при съёмке движения выдержку выбирают первой?'},
+    {id:'editing-demo', title:'Типы склеек', disc:'Монтаж', color:'#8fb4ff', date:'2026-10-23', today:false,
+     q1:'Чем склейка по движению отличается от склейки по взгляду?', q2:'Когда монтажёр сознательно делает jump cut?'},
     {id:'demo-2', title:'Сценарий: форма и разметка', disc:'Операторское', color:'#7fa8e0', date:'2026-10-23', today:false,
      q1:'Запишите по правилам сценария начало сцены: в столовой колледжа днём студент роняет поднос. Заголовок, ремарка, одна реплика.', q2:'Чем литературный сценарий отличается от режиссёрского?'}
   ]};
