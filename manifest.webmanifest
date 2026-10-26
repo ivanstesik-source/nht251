@@ -1,0 +1,20 @@
+{
+ "name": "Мои занятия НХТфш251",
+ "short_name": "Занятия",
+ "start_url": "./",
+ "display": "standalone",
+ "background_color": "#14162b",
+ "theme_color": "#14162b",
+ "icons": [
+  {
+   "src": "apple-touch-icon.png",
+   "sizes": "180x180",
+   "type": "image/png"
+  },
+  {
+   "src": "icon.svg",
+   "sizes": "any",
+   "type": "image/svg+xml"
+  }
+ ]
+}
