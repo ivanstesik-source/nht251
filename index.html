@@ -14,6 +14,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#14162b">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Onest:wght@400;500;600;700&display=swap">
@@ -370,11 +372,14 @@ function hideQR(){ $('qr').hidden = true; if (document.fullscreenElement) docume
 $('qrshow').onclick = showQR; $('qr').onclick = hideQR;
 document.addEventListener('keydown', e => { if (e.key === 'Escape'){ closeP(); hideQR(); } });
 
+let loadedOnce = false;
+function applyDump(d){ meta = (d.meta || {}).main || null;
+  const m = o => new Map(Object.entries(o || {}).map(([id,v]) => [id, {id, ...v}]));
+  lessons = m(d.lessons); labs = m(d.labs); subs = new Map(Object.entries(d.subs || {})); answers = new Map(Object.entries(d.answers || {}));
+  $('status').textContent = meta ? '' : 'База пока пустая.'; render(); }
 async function load(){
-  try { const d = await dump(); meta = (d.meta || {}).main || null;
-    const m = o => new Map(Object.entries(o || {}).map(([id,v]) => [id, {id, ...v}]));
-    lessons = m(d.lessons); labs = m(d.labs); subs = new Map(Object.entries(d.subs || {})); answers = new Map(Object.entries(d.answers || {}));
-    $('status').textContent = meta ? '' : 'База пока пустая.'; render(); }
+  if (!loadedOnce){ loadedOnce = true; try { const c = JSON.parse(store.get('nht-dump') || 'null'); if (c && c.meta) applyDump(c); } catch(e){} }
+  try { const d = await dump(); try { store.set('nht-dump', JSON.stringify(d)); } catch(e){} applyDump(d); }
   catch(e){ $('status').textContent = 'Не загрузилось: ' + e.message + '.'; if (/ключ/.test(e.message)){ $('app').hidden = true; $('gate').hidden = false; } }
 }
 function start(){ $('gate').hidden = true; $('app').hidden = false; const t = store.get('nht-tab'); tab(t && $('v-' + t) ? t : 'week'); requestAnimationFrame(movePill); load(); }
