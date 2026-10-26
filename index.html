@@ -238,7 +238,7 @@ const store = { get(k){ try { return localStorage.getItem(k) } catch(e){ return 
 
 // ключ: из ссылки (#k=…) или из памяти браузера
 let KEY = null;
-{ const m = location.hash.match(/k=([^&]+)/); if (m){ KEY = decodeURIComponent(m[1]); store.set('nht-key', KEY); history.replaceState(null, '', location.pathname + location.search); } else KEY = store.get('nht-key'); }
+{ const m = location.hash.match(/k=([^&]+)/); if (m){ KEY = decodeURIComponent(m[1]); store.set('nht-key', KEY); } else KEY = store.get('nht-key'); }
 
 const ST = {todo:'не проведён', part:'частично', done:'проведён', skip:'отменён'};
 const SUB = ['', 'work', 'fix', 'done'], SUBL = {'':'—', work:'в работе', fix:'доработка', done:'сдано'};
