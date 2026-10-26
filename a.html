@@ -32,7 +32,7 @@ html,body{margin:0;height:100%}
 body{
   background:var(--hall); color:var(--light); font:16px/1.5 var(--ui);
   -webkit-font-smoothing:antialiased;
-  padding:max(20px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+  padding:calc(env(safe-area-inset-top,0px) + 26px) max(16px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px) + 28px) max(16px,env(safe-area-inset-left));
 }
 /* луч проектора сверху — единственная декорация фона */
 body::before{
