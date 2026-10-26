@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#14162b">
+<meta name="theme-color" content="#121427">
 <title>Самостоятельная работа</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
@@ -20,105 +20,235 @@
 <style>
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{margin:0;height:100%;max-width:100%;overflow-x:hidden}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;max-width:100%;overflow-x:hidden}
 :root{
-  --hall:#14162b; --screen:#1f2240; --screen2:#282b4d; --light:#f4f2ff; --titles:#a3a6cc;
-  --lamp:#ffc94d; --lamp-ink:#14162b; --ok:#57d9a3; --err:#ff8a8a; --line:#34375e;
+  --hall:#121427; --screen:#1c1f3b; --screen2:#252948; --raise:#2c3156; --light:#f5f3ff; --titles:#a7aad0; --dim:#7c80a8;
+  --lamp:#ffc94d; --lamp2:#ff9f43; --lamp-ink:#16182e; --ok:#5ee0a8; --err:#ff8f8f; --line:#30345a;
   --disp:"Dela Gothic One",system-ui,sans-serif; --ui:"Onest",system-ui,sans-serif;
-  --r-lg:22px; --r-md:14px; --r-sm:10px;
+  --r-xl:28px; --r-lg:22px; --r-md:16px; --r-sm:12px;
+  --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.5,1.6,.4,1);
+  --pad:max(20px,env(safe-area-inset-left));
 }
 @media (prefers-color-scheme:light){:root{
-  --hall:#eceef8; --screen:#ffffff; --screen2:#f3f4fb; --light:#191b33; --titles:#5c5f87;
-  --lamp:#ffc23a; --lamp-ink:#191b33; --ok:#14935e; --err:#c23b3b; --line:#d9dbea;
+  --hall:#eef0f9; --screen:#ffffff; --screen2:#f4f5fb; --raise:#e9ebf6; --light:#17192f; --titles:#585c86; --dim:#8a8db0;
+  --lamp:#ffc23a; --lamp2:#ff9a2e; --lamp-ink:#17192f; --ok:#12925c; --err:#c63c3c; --line:#dcdeee;
 }}
 body{
-  background:var(--hall); color:var(--light); font:16px/1.5 var(--ui);
-  -webkit-font-smoothing:antialiased;
-  padding:calc(env(safe-area-inset-top,0px) + 26px) max(16px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px) + 28px) max(16px,env(safe-area-inset-left));
+  min-height:100vh; min-height:100dvh;
+  background:var(--hall); color:var(--light); font:17px/1.55 var(--ui);
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent;
+  padding:calc(env(safe-area-inset-top,0px) + 30px) var(--pad) calc(env(safe-area-inset-bottom,0px) + 40px);
 }
-/* луч проектора сверху — единственная декорация фона */
+/* луч проектора и плёночное зерно */
 body::before{
-  content:""; position:fixed; inset:-20vh 0 auto; height:70vh; pointer-events:none; z-index:-1;
-  background:radial-gradient(60% 55% at 50% 0%, color-mix(in srgb,var(--lamp) 16%,transparent), transparent 70%);
+  content:""; position:fixed; left:50%; top:-30vh; width:160vw; height:95vh; transform:translateX(-50%);
+  pointer-events:none; z-index:-2;
+  background:conic-gradient(from 180deg at 50% 0%, transparent 152deg, color-mix(in srgb,var(--lamp) 20%,transparent) 172deg, color-mix(in srgb,var(--lamp) 30%,transparent) 180deg, color-mix(in srgb,var(--lamp) 20%,transparent) 188deg, transparent 208deg);
+  -webkit-mask:radial-gradient(70% 90% at 50% 0%, #000 30%, transparent 75%); mask:radial-gradient(70% 90% at 50% 0%, #000 30%, transparent 75%);
+  animation:beam 7s ease-in-out infinite alternate;
 }
-main{max-width:560px;margin:0 auto;display:grid;gap:18px}
-h1{font:400 clamp(30px,8.6vw,44px)/1.02 var(--disp);margin:6px 0 0;letter-spacing:-.01em}
-.lead{color:var(--titles);margin:6px 0 0;font-size:15px}
-h2{font:600 19px/1.3 var(--ui);margin:0}
-.step{display:grid;gap:14px;animation:in .45s cubic-bezier(.2,.8,.2,1) both}
-@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes beam{from{opacity:.75;transform:translateX(-50%) rotate(-2deg)}to{opacity:1;transform:translateX(-50%) rotate(2deg)}}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1; opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme:light){body::after{opacity:.04}}
+@media (prefers-color-scheme:light){h1 span,.qn{background-image:linear-gradient(95deg,#e09a00,#e0650f)}.kicker .rec{color:#b87400}}
 
-/* плитки студентов */
-.names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+main{max-width:540px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:30px}
+main>*{min-width:0}
+
+/* шапка */
+header{display:grid;gap:14px;animation:in .6s var(--ease) both}
+.kicker{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:600 12px/1 var(--ui);letter-spacing:.14em;text-transform:uppercase;color:var(--titles)}
+.kicker .rec{display:inline-flex;align-items:center;gap:7px;color:var(--lamp)}
+.kicker .rec::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 0 4px color-mix(in srgb,#ff5a5a 25%,transparent);animation:rec 1.6s ease-in-out infinite}
+@keyframes rec{50%{opacity:.35}}
+.kicker .sep{width:4px;height:4px;border-radius:50%;background:var(--dim)}
+h1{font:400 clamp(26px,8.1vw,46px)/1 var(--disp);margin:0;letter-spacing:-.015em;transition:font-size .4s var(--ease)}
+body.compact h1{font-size:clamp(22px,6.2vw,30px)}
+body.compact .lead{display:none}
+body.compact main{gap:24px}
+h1 span{display:block;background:linear-gradient(95deg,var(--lamp),var(--lamp2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--titles);margin:0;font-size:16px;max-width:32ch}
+.demo{display:inline-flex;align-items:center;gap:8px;justify-self:start;font:600 13px/1 var(--ui);color:var(--lamp-ink);background:var(--lamp);padding:8px 12px;border-radius:999px}
+
+/* плёнка-шаги */
+.reel{list-style:none;margin:0;padding:10px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  background:var(--screen);border-radius:var(--r-md);position:relative;
+  background-image:radial-gradient(circle,var(--hall) 2.2px,transparent 2.6px),radial-gradient(circle,var(--hall) 2.2px,transparent 2.6px);
+  background-size:14px 6px;background-repeat:repeat-x;background-position:4px 1px,4px calc(100% - 1px)}
+.reel li{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 6px;border-radius:9px;
+  font:600 14px/1 var(--ui);color:var(--dim);background:var(--screen2);transition:background .35s var(--ease),color .35s var(--ease)}
+.reel li b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font:400 12px/1 var(--disp);background:var(--raise);color:var(--titles);transition:inherit;flex:none}
+.reel li.on{background:color-mix(in srgb,var(--lamp) 18%,var(--screen2));color:var(--light)}
+.reel li.on b{background:var(--lamp);color:var(--lamp-ink)}
+.reel li.ok{color:var(--titles)}
+.reel li.ok b{background:color-mix(in srgb,var(--ok) 25%,var(--raise));color:var(--ok);font-size:0}
+.reel li.ok b::after{content:"✓";font:700 13px/1 var(--ui)}
+
+.step{display:grid;gap:22px;animation:in .5s var(--ease) both}
+@keyframes in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.step-h{display:grid;gap:6px}
+h2{font:400 26px/1.1 var(--disp);margin:0;letter-spacing:-.005em}
+.sub{margin:0;color:var(--titles);font-size:15px}
+
+/* кто вы */
+.names{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .chip{
-  font:600 16px/1.2 var(--ui); color:var(--light); text-align:left;
-  background:var(--screen); border:1.5px solid var(--line); border-radius:var(--r-md);
-  padding:16px 14px; min-height:58px; cursor:pointer;
-  transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  display:flex;align-items:center;gap:9px;min-width:0;text-align:left;
+  font:600 16px/1.2 var(--ui);color:var(--light);
+  background:var(--screen);border:1.5px solid var(--line);border-radius:var(--r-md);
+  padding:12px 8px 12px 10px;min-height:68px;cursor:pointer;
+  animation:pop .5s var(--spring) both;animation-delay:calc(var(--i) * 35ms + 120ms);
+  transition:transform .18s var(--ease),border-color .2s,background .2s,box-shadow .2s;
 }
-.chip:active{transform:scale(.97)}
-.chip[aria-pressed="true"]{border-color:var(--lamp);background:color-mix(in srgb,var(--lamp) 14%,var(--screen))}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}
+.chip:active{transform:scale(.96)}
+.chip .av{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:10px;font:400 15px/1 var(--disp);color:var(--lamp-ink);background:var(--c)}
+.chip .nm{min-width:0;display:grid;gap:2px;font-size:15px;letter-spacing:-.01em;overflow-wrap:break-word}
+.chip .nm small{font-weight:500;color:var(--titles);font-size:14px}
+.chip[aria-pressed="true"]{border-color:var(--lamp);background:color-mix(in srgb,var(--lamp) 12%,var(--screen));box-shadow:0 0 0 4px color-mix(in srgb,var(--lamp) 18%,transparent)}
 
-.me{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--screen);border-radius:var(--r-md);padding:12px 14px}
-.me b{font-weight:600}
-.link{font:500 15px var(--ui);color:var(--lamp);background:none;border:0;padding:6px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-@media (prefers-color-scheme:light){.link{color:#8a5a00}}
+/* полоса «вы — …» */
+.me{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px 12px 12px;background:var(--screen);border-radius:var(--r-md)}
+.me-l{display:flex;align-items:center;gap:12px;min-width:0}
+.me .av{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:11px;font:400 16px/1 var(--disp);color:var(--lamp-ink);background:var(--c,var(--lamp))}
+.me-t{min-width:0;display:grid;line-height:1.25}
+.me-t small{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.me-t b{font-weight:600;overflow-wrap:break-word}
+.link{flex:none;font:600 14px var(--ui);color:var(--light);background:var(--screen2);border:1.5px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;transition:transform .15s}
+.link:active{transform:scale(.95)}
 
-.lessons{display:grid;gap:10px}
-.lesson{display:grid;grid-template-columns:6px 1fr;gap:12px;align-items:stretch;text-align:left;width:100%;
-  background:var(--screen);border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px 14px 14px 0;color:var(--light);font:inherit;cursor:pointer}
-.lesson .bar{border-radius:0 4px 4px 0}
-.lesson .d{color:var(--titles);font-size:13px}
-.lesson .t{font-weight:600;line-height:1.3}
-.lesson.done{opacity:.55}
-details.old summary{color:var(--titles);cursor:pointer;font-size:15px;padding:4px 0}
+/* уроки — билеты */
+.lessons{display:grid;gap:14px}
+.ticket{
+  --notch:11px; position:relative; display:grid; gap:10px; width:100%; text-align:left; cursor:pointer;
+  font:inherit; color:var(--light); background:var(--screen); border:0; border-radius:var(--r-lg);
+  padding:18px 22px 18px 26px; overflow:hidden;
+  -webkit-mask:radial-gradient(circle var(--notch) at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--notch) at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat;
+          mask:radial-gradient(circle var(--notch) at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle var(--notch) at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat;
+  animation:in .5s var(--ease) both;animation-delay:calc(var(--i) * 60ms + 80ms);
+  transition:transform .2s var(--ease),background .2s;
+}
+.ticket::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c,var(--lamp))}
+.ticket:active{transform:scale(.98)}
+.ticket .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font:700 12px/1 var(--ui);letter-spacing:.06em;text-transform:uppercase;padding:7px 10px;border-radius:999px;background:var(--screen2);color:var(--titles)}
+.pill.disc{background:color-mix(in srgb,var(--c,var(--lamp)) 22%,var(--screen2));color:var(--light)}
+.pill.now{background:var(--lamp);color:var(--lamp-ink)}
+.pill.sent{background:color-mix(in srgb,var(--ok) 20%,var(--screen2));color:var(--ok)}
+.ticket .t{font:600 19px/1.3 var(--ui);overflow-wrap:break-word}
+.ticket .go{position:absolute;right:20px;bottom:18px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--screen2);color:var(--lamp)}
+.ticket .t{padding-right:44px}
+.ticket.done{opacity:.6}
+.ticket.done .go{color:var(--ok)}
+details.old{border-top:1px dashed var(--line);padding-top:18px}
+details.old summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font:600 16px var(--ui);color:var(--titles)}
+details.old summary::-webkit-details-marker{display:none}
+details.old summary::after{content:"";width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-3px,-3px);transition:transform .25s var(--ease)}
+details.old[open] summary::after{transform:rotate(-135deg)}
+details.old .lessons{margin-top:16px}
+.empty{margin:0;padding:18px;border:1.5px dashed var(--line);border-radius:var(--r-md);color:var(--titles);font-size:15px}
 
 /* вопросы */
-.q{display:grid;gap:8px;background:var(--screen);border-radius:var(--r-lg);padding:16px}
-.q .n{font:400 15px var(--disp);color:var(--lamp)}
-@media (prefers-color-scheme:light){.q .n{color:#8a5a00}}
-.q p{margin:0;font-weight:600;font-size:17px;line-height:1.4}
+.qcard{position:relative;display:grid;gap:16px;background:var(--screen);border-radius:var(--r-xl);padding:22px 20px 18px;
+  border:1.5px solid transparent;transition:border-color .3s var(--ease),box-shadow .3s var(--ease)}
+.qcard:focus-within{border-color:color-mix(in srgb,var(--lamp) 55%,transparent);box-shadow:0 18px 50px -24px color-mix(in srgb,var(--lamp) 60%,transparent)}
+.qtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.qn{font:400 34px/1 var(--disp);letter-spacing:-.02em;background:linear-gradient(95deg,var(--lamp),var(--lamp2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.qstate{display:inline-flex;align-items:center;gap:6px;font:600 13px/1 var(--ui);padding:7px 11px;border-radius:999px;background:var(--screen2);color:var(--dim);transition:background .3s,color .3s}
+.qstate::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.qcard.filled .qstate{background:color-mix(in srgb,var(--ok) 18%,var(--screen2));color:var(--ok)}
+.qtext{margin:0;font:600 19px/1.42 var(--ui);cursor:text}
 textarea{
-  width:100%; min-height:120px; resize:vertical; font:16px/1.45 var(--ui); color:var(--light);
-  background:var(--screen2); border:1.5px solid var(--line); border-radius:var(--r-sm); padding:12px;
+  display:block;width:100%;min-height:132px;resize:none;overflow:hidden;
+  font:17px/1.55 var(--ui);color:var(--light);
+  background:var(--screen2);border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px 16px;
+  transition:border-color .2s,background .2s;
 }
-textarea::placeholder{color:var(--titles)}
+textarea:focus{outline:none;border-color:var(--lamp);background:color-mix(in srgb,var(--lamp) 5%,var(--screen2))}
+textarea::placeholder{color:var(--dim)}
+.qfoot{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--dim)}
+.qfoot .saved{opacity:0;transition:opacity .3s}
+.qfoot .saved.on{opacity:1}
+
+/* нижняя панель отправки */
+.dock{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:5;display:grid;gap:12px;
+  padding:14px;border-radius:var(--r-xl);background:color-mix(in srgb,var(--screen) 82%,transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);
+  border:1px solid var(--line);box-shadow:0 20px 50px -20px rgba(0,0,0,.55)}
+.prog{display:flex;align-items:center;justify-content:space-between;gap:12px;font:600 14px/1 var(--ui);color:var(--titles);padding:0 4px}
+.dots{display:flex;gap:6px}
+.dots i{width:26px;height:6px;border-radius:3px;background:var(--raise);transition:background .35s var(--ease)}
+.dots i.on{background:var(--ok)}
 .send{
-  font:400 19px var(--disp); letter-spacing:.01em; color:var(--lamp-ink); background:var(--lamp);
-  border:0; border-radius:var(--r-md); padding:18px; width:100%; cursor:pointer;
-  box-shadow:0 10px 30px -12px color-mix(in srgb,var(--lamp) 70%,transparent);
-  transition:transform .15s ease, filter .15s ease;
+  position:relative;overflow:hidden;
+  font:400 19px/1 var(--disp);letter-spacing:.01em;color:var(--lamp-ink);
+  background:linear-gradient(95deg,var(--lamp),var(--lamp2));
+  border:0;border-radius:var(--r-md);padding:19px 18px;width:100%;cursor:pointer;
+  box-shadow:0 14px 34px -14px color-mix(in srgb,var(--lamp2) 80%,transparent);
+  transition:transform .15s var(--ease),filter .2s,opacity .2s;
 }
-.send:active{transform:scale(.98)}
-.send:disabled{filter:grayscale(.6) brightness(.8)}
-.msg{min-height:1.4em;font-size:15px}
+.send::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%)}
+.send.ready::after{animation:shine 2.6s ease-in-out 1s infinite}
+@keyframes shine{0%{transform:translateX(-120%)}40%,100%{transform:translateX(120%)}}
+.send:active{transform:scale(.97)}
+.send:disabled{opacity:.45;box-shadow:none;cursor:default}
+.send.busy{color:transparent}
+.send.busy::before{content:"";position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px;border-radius:50%;border:3px solid var(--lamp-ink);border-right-color:transparent;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.msg{font-size:14px;text-align:center;min-height:0}
+.msg:empty{display:none}
 .msg.err{color:var(--err)}
-.hint{color:var(--titles);font-size:14px;margin:0}
-button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline-offset:2px}
+.hint{margin:0;color:var(--titles);font-size:14px;text-align:center}
+
+/* окно подтверждения */
+.sheet{position:fixed;inset:0;z-index:20;display:grid;align-items:end;justify-items:center}
+.sheet-bg{position:absolute;inset:0;background:rgba(8,9,20,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:fade .25s ease both}
+@keyframes fade{from{opacity:0}}
+.sheet-card{position:relative;width:min(540px,100%);background:var(--screen);border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:12px 22px calc(env(safe-area-inset-bottom,0px) + 22px);display:grid;gap:14px;animation:up .4s var(--ease) both}
+@media (min-width:600px){.sheet{align-items:center}.sheet-card{border-radius:var(--r-xl);padding-bottom:22px}}
+@keyframes up{from{transform:translateY(100%)}}
+.grab{justify-self:center;width:40px;height:5px;border-radius:3px;background:var(--raise);margin-bottom:6px}
+.sheet h3{margin:0;font:400 24px/1.15 var(--disp)}
+.sheet p{margin:0;color:var(--titles)}
+.sheet .warn{color:var(--light);background:color-mix(in srgb,var(--err) 14%,var(--screen2));border-radius:var(--r-sm);padding:12px 14px;font-size:15px}
+.sheet-btns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px;margin-top:6px}
+.ghost{font:600 16px var(--ui);color:var(--light);background:var(--screen2);border:1.5px solid var(--line);border-radius:var(--r-md);padding:16px;cursor:pointer}
 
 /* хлопушка */
-.slate-wrap{display:grid;place-items:center;padding:8px 0 0}
-.slate{width:min(330px,86vw);filter:drop-shadow(0 24px 40px rgba(0,0,0,.35))}
-.slate .arm{transform-origin:14px 54px;transform:rotate(-24deg)}
-.slate.clap .arm{animation:clap .42s cubic-bezier(.6,-0.3,.4,1.4) .1s forwards}
-@keyframes clap{0%{transform:rotate(-24deg)}70%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
-.slate.clap{animation:shake .22s ease .5s}
-@keyframes shake{0%,100%{transform:none}35%{transform:translateY(3px) rotate(-.6deg)}70%{transform:translateY(-1px) rotate(.3deg)}}
+.slate-wrap{display:grid;place-items:center;padding:16px 0 4px}
+.slate{width:min(320px,84vw);overflow:visible;filter:drop-shadow(0 30px 40px rgba(0,0,0,.4))}
+.slate .arm{transform-origin:14px 54px;transform:rotate(-26deg)}
+.slate.clap .arm{animation:clap .42s cubic-bezier(.6,-0.3,.4,1.4) .15s forwards}
+@keyframes clap{0%{transform:rotate(-26deg)}70%{transform:rotate(1.5deg)}100%{transform:rotate(0)}}
+.slate.clap{animation:drop .5s var(--spring) both, shake .22s ease .55s}
+@keyframes drop{from{opacity:0;transform:translateY(-30px) scale(.9)}}
+@keyframes shake{0%,100%{transform:none}35%{transform:translateY(4px) rotate(-.7deg)}70%{transform:translateY(-1px) rotate(.3deg)}}
 .check{stroke-dasharray:70;stroke-dashoffset:70}
-.slate.clap .check{animation:draw .5s cubic-bezier(.6,0,.2,1) .7s forwards}
+.slate.clap .check{animation:draw .5s cubic-bezier(.6,0,.2,1) .75s forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.done-text{text-align:center;display:grid;gap:6px;opacity:0}
-.done-text.show{animation:in .5s cubic-bezier(.2,.8,.2,1) .95s forwards}
-.done-text h2{font:400 28px/1.1 var(--disp)}
-.done-text p{margin:0;color:var(--titles)}
-.burst{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.done-text{text-align:center;display:grid;gap:10px;justify-items:center;opacity:0}
+.done-text.show{animation:in .55s var(--ease) 1s forwards}
+.done-text h2{font-size:40px}
+.done-text p{margin:0;color:var(--titles);max-width:30ch}
+.done-text .what{color:var(--light);font-weight:600;max-width:34ch;overflow-wrap:break-word}
+.stamp{display:inline-flex;gap:8px;align-items:center;font:600 14px/1 var(--ui);color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--screen));padding:10px 14px;border-radius:999px;margin-top:6px}
+.burst{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:30}
 .burst i{position:absolute;width:10px;height:14px;border-radius:2px;opacity:0}
 
-.skeleton{height:58px;border-radius:var(--r-md);background:linear-gradient(90deg,var(--screen),var(--screen2),var(--screen));background-size:200% 100%;animation:sk 1.2s linear infinite}
+.skeleton{height:64px;border-radius:var(--r-md);background:linear-gradient(90deg,var(--screen),var(--screen2),var(--screen));background-size:200% 100%;animation:sk 1.2s linear infinite}
 @keyframes sk{to{background-position:-200% 0}}
+.state{display:grid;gap:14px;justify-items:start;padding:26px 22px;background:var(--screen);border-radius:var(--r-xl)}
+.state .ico{font-size:34px;line-height:1}
 
+button:focus-visible,summary:focus-visible{outline:3px solid var(--lamp);outline-offset:3px}
+@media (max-width:360px){.names{grid-template-columns:minmax(0,1fr)}h2{font-size:23px}}
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}
   .slate .arm{transform:none}.check{stroke-dashoffset:0}.done-text{opacity:1}
 }
 </style>
@@ -126,31 +256,52 @@ button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px so
 <body>
 <main>
   <header>
-    <h1>Самостоятельная работа</h1>
-    <p class="lead" id="lead">Два вопроса, ответ увидит только преподаватель.</p>
+    <div class="kicker"><span class="rec">Мотор</span><span class="sep"></span><span>НХТфш-251</span><span class="sep"></span><span id="date"></span></div>
+    <h1>Самостоятельная <span>работа</span></h1>
+    <p class="lead" id="lead">Два вопроса по уроку. Ответы видит только преподаватель.</p>
+    <div class="demo" id="demo" hidden>Демо-режим: ответы никуда не уходят</div>
   </header>
 
-  <section id="load" class="step" aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div></section>
+  <ol class="reel" id="reel" hidden aria-label="Шаги">
+    <li data-s="s-who"><b>1</b>Кто вы</li>
+    <li data-s="s-lesson"><b>2</b>Урок</li>
+    <li data-s="s-q"><b>3</b>Ответ</li>
+  </ol>
+
+  <section id="load" class="step" aria-busy="true"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></section>
 
   <section id="s-who" class="step" hidden>
-    <h2>Кто вы?</h2>
+    <div class="step-h"><h2>Кто вы?</h2><p class="sub">Нажмите на свою фамилию.</p></div>
     <div class="names" id="names"></div>
   </section>
 
   <section id="s-lesson" class="step" hidden>
-    <div class="me"><span>Вы — <b id="me-name"></b></span><button class="link" data-go="who">Это не я</button></div>
-    <h2>Какой урок?</h2>
+    <div class="me" id="me-bar"><div class="me-l"><span class="av" id="me-av"></span><span class="me-t"><small>Отвечает</small><b id="me-name"></b></span></div><button class="link" data-go="who">Это не я</button></div>
+    <div class="step-h"><h2>Какой урок?</h2><p class="sub" id="lesson-sub">Выберите урок, на котором были вопросы.</p></div>
     <div class="lessons" id="today"></div>
-    <details class="old" id="old-wrap"><summary>Прошлые уроки</summary><div class="lessons" id="old" style="margin-top:10px"></div></details>
+    <details class="old" id="old-wrap"><summary>Прошлые уроки</summary><div class="lessons" id="old"></div></details>
   </section>
 
   <section id="s-q" class="step" hidden>
-    <div class="me"><span><b id="q-lesson"></b></span><button class="link" data-go="lesson">Другой урок</button></div>
-    <label class="q"><span class="n">1</span><p id="q1"></p><textarea id="a1" maxlength="900" placeholder="Ваш ответ"></textarea></label>
-    <label class="q"><span class="n">2</span><p id="q2"></p><textarea id="a2" maxlength="900" placeholder="Ваш ответ"></textarea></label>
-    <button class="send" id="send">Отправить ответ</button>
-    <div class="msg" id="msg" role="status" aria-live="polite"></div>
-    <p class="hint">Ответ отправляется один раз, исправить его потом нельзя.</p>
+    <div class="me"><div class="me-l"><span class="av" id="ql-av"></span><span class="me-t"><small id="q-disc"></small><b id="q-lesson"></b></span></div><button class="link" data-go="lesson">Другой урок</button></div>
+    <div class="qcard" id="card1">
+      <div class="qtop"><span class="qn">01</span><span class="qstate" id="st1">Нет ответа</span></div>
+      <label class="qtext" for="a1" id="q1"></label>
+      <textarea id="a1" maxlength="900" rows="4" placeholder="Пишите своими словами"></textarea>
+      <div class="qfoot"><span class="saved" id="sv1">Черновик сохранён</span><span id="c1">0 / 900</span></div>
+    </div>
+    <div class="qcard" id="card2">
+      <div class="qtop"><span class="qn">02</span><span class="qstate" id="st2">Нет ответа</span></div>
+      <label class="qtext" for="a2" id="q2"></label>
+      <textarea id="a2" maxlength="900" rows="4" placeholder="Пишите своими словами"></textarea>
+      <div class="qfoot"><span class="saved" id="sv2">Черновик сохранён</span><span id="c2">0 / 900</span></div>
+    </div>
+    <div class="dock">
+      <div class="prog"><span id="ptext">Ответов: 0 из 2</span><span class="dots"><i id="d1"></i><i id="d2"></i></span></div>
+      <button class="send" id="send" disabled>Отправить ответ</button>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </div>
+    <p class="hint">Ответ отправляется один раз. Исправить его потом нельзя.</p>
   </section>
 
   <section id="s-done" class="step" hidden>
@@ -158,162 +309,266 @@ button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px so
       <svg class="slate" id="slate" viewBox="0 0 320 250" role="img" aria-label="Хлопушка с галочкой">
         <defs>
           <pattern id="stripes" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
-            <rect width="40" height="40" fill="#f4f2ff"/><rect width="20" height="40" fill="#14162b"/>
+            <rect width="40" height="40" fill="#f5f3ff"/><rect width="20" height="40" fill="#121427"/>
           </pattern>
         </defs>
-        <rect x="8" y="64" width="304" height="178" rx="14" fill="#14162b" stroke="#f4f2ff" stroke-width="3"/>
-        <rect x="8" y="64" width="304" height="34" rx="6" fill="url(#stripes)" stroke="#f4f2ff" stroke-width="3"/>
-        <g class="arm"><rect x="8" y="20" width="304" height="34" rx="6" fill="url(#stripes)" stroke="#f4f2ff" stroke-width="3"/></g>
+        <rect x="8" y="64" width="304" height="178" rx="14" fill="#121427" stroke="#f5f3ff" stroke-width="3"/>
+        <rect x="8" y="64" width="304" height="34" rx="6" fill="url(#stripes)" stroke="#f5f3ff" stroke-width="3"/>
+        <g class="arm"><rect x="8" y="20" width="304" height="34" rx="6" fill="url(#stripes)" stroke="#f5f3ff" stroke-width="3"/></g>
         <circle cx="14" cy="54" r="7" fill="#ffc94d"/>
-        <g font-family="Onest, sans-serif" fill="#a3a6cc" font-size="11">
-          <text x="24" y="122">УРОК</text><text x="24" y="172">КТО</text><text x="232" y="172">ОТВЕТ</text>
+        <g font-family="Onest, sans-serif" fill="#a7aad0" font-size="11" letter-spacing="1.5">
+          <text x="24" y="122">УРОК</text><text x="24" y="172">КТО</text><text x="234" y="172">ДУБЛЬ</text>
         </g>
-        <line x1="20" y1="148" x2="300" y2="148" stroke="#34375e" stroke-width="2"/>
-        <line x1="222" y1="152" x2="222" y2="230" stroke="#34375e" stroke-width="2"/>
-        <g font-family="Onest, sans-serif" fill="#f4f2ff" font-weight="600">
+        <line x1="20" y1="148" x2="300" y2="148" stroke="#30345a" stroke-width="2"/>
+        <line x1="222" y1="152" x2="222" y2="230" stroke="#30345a" stroke-width="2"/>
+        <g font-family="Onest, sans-serif" fill="#f5f3ff" font-weight="600">
           <text id="sl-lesson" x="24" y="140" font-size="15"></text>
-          <text id="sl-who" x="24" y="196" font-size="18"></text>
+          <text id="sl-who" x="24" y="200" font-size="19"></text>
         </g>
-        <path class="check" d="M240 200 l14 14 l32 -36" fill="none" stroke="#57d9a3" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="check" d="M242 200 l14 14 l32 -36" fill="none" stroke="#5ee0a8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
     <div class="done-text" id="done-text">
-      <h2 id="done-h">Ответ записан</h2>
-      <p id="done-p">Можно убирать телефон.</p>
+      <h2 id="done-h">Снято!</h2>
+      <p class="what" id="done-what"></p>
+      <p id="done-p">Ответ у преподавателя. Можно убирать телефон.</p>
+      <span class="stamp" id="stamp"></span>
+      <button class="link" id="again" hidden>Пройти ещё раз (демо)</button>
     </div>
   </section>
 
   <section id="s-none" class="step" hidden>
-    <h2>Сегодня самостоятельной нет</h2>
-    <p class="hint">Если преподаватель только что вывел этот код, обновите страницу через минуту.</p>
+    <div class="state"><span class="ico">🎬</span><h2>Сегодня самостоятельной нет</h2><p class="sub">Если преподаватель только что показал QR-код, обновите страницу через минуту.</p><button class="link" onclick="location.reload()">Обновить</button></div>
   </section>
 
   <section id="s-fail" class="step" hidden>
-    <h2>Не получилось загрузить вопросы</h2>
-    <p class="hint" id="fail-p">Проверьте интернет и обновите страницу.</p>
+    <div class="state"><span class="ico">📡</span><h2>Не загрузилось</h2><p class="sub" id="fail-p">Проверьте интернет и обновите страницу.</p></div>
     <button class="send" onclick="location.reload()">Обновить</button>
   </section>
 </main>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sh-h">
+    <span class="grab"></span>
+    <h3 id="sh-h">Отправляем?</h3>
+    <p class="warn" id="sh-warn" hidden></p>
+    <p>После отправки исправить ответ нельзя.</p>
+    <div class="sheet-btns"><button class="ghost" data-close>Вернуться</button><button class="send ready" id="go">Отправить</button></div>
+  </div>
+</div>
 <div class="burst" id="burst" aria-hidden="true"></div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzrhUKSL_de2aqekOW0BiGH3ODW16WUdUN9-HkqII8hmq-QA0Q6yvRcab0NZCNyTnZf/exec';
+const Q = new URLSearchParams(location.search);
+const DEMO = Q.has('demo');
+const pre = Q.get('l');
 const $ = id => document.getElementById(id);
 const store = {
   get(k){ try { return localStorage.getItem(k) } catch(e){ return null } },
   set(k,v){ try { localStorage.setItem(k,v) } catch(e){} }
 };
-const pre = new URLSearchParams(location.search).get('l');
+const AV = ['#ffc94d','#5ee0a8','#8fb4ff','#ff9f9f','#c9a4ff','#7fe3e8','#ffb36b','#b8e986','#f59fd6','#a3b3ff'];
 let D = null, me = null, lesson = null;
+
+const MONTHS = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const DAYS = ['вс','пн','вт','ср','чт','пт','сб'];
+{ const n = new Date(); $('date').textContent = DAYS[n.getDay()] + ', ' + n.getDate() + ' ' + MONTHS[n.getMonth()]; }
+if (DEMO) $('demo').hidden = false;
 
 function show(id){
   for (const s of document.querySelectorAll('main > section')) s.hidden = s.id !== id;
+  document.body.classList.toggle('compact', id !== 's-who' && id !== 'load');
+  const order = ['s-who','s-lesson','s-q'], k = order.indexOf(id);
+  $('reel').hidden = !(k >= 0 || id === 's-done');
+  $('reel').querySelectorAll('li').forEach((li, i) => {
+    const kk = id === 's-done' ? 3 : k;
+    li.className = i < kk ? 'ok' : i === kk ? 'on' : '';
+  });
   window.scrollTo({top:0, behavior:'smooth'});
 }
 function fmt(d){ return d.slice(8) + '.' + d.slice(5,7); }
-function answered(l, st){ return (D.answered[l] || []).includes(st) || store.get('nht-sent-' + l + '-' + st) === '1'; }
+function sentKey(l, st){ return 'nht-sent-' + l + '-' + st; }
+function answered(l, st){ return !DEMO && ((D.answered[l] || []).includes(st) || store.get(sentKey(l, st)) === '1'); }
 function trunc(s, n){ return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+function student(){ return D.students.find(s => s.id === me); }
+function stIndex(id){ return Math.max(0, D.students.findIndex(s => s.id === id)); }
+function el(tag, cls, txt){ const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
 function renderWho(){
   const box = $('names'); box.replaceChildren();
-  for (const s of D.students){
-    const b = document.createElement('button');
-    b.className = 'chip'; b.textContent = s.name; b.setAttribute('aria-pressed', s.id === me);
-    b.onclick = () => { me = s.id; store.set('nht-me', me); afterWho(); };
+  D.students.forEach((s, i) => {
+    const b = el('button', 'chip'); b.style.setProperty('--i', i); b.style.setProperty('--c', AV[i % AV.length]);
+    b.setAttribute('aria-pressed', s.id === me);
+    const parts = s.name.split(' ');
+    const nm = el('span', 'nm'); nm.append(el('span', '', parts[0])); if (parts[1]) nm.append(el('small', '', parts.slice(1).join(' ')));
+    b.append(el('span', 'av', s.name[0]), nm);
+    b.onclick = () => { me = s.id; store.set('nht-me', me); b.setAttribute('aria-pressed', 'true'); setTimeout(afterWho, 160); };
     box.append(b);
-  }
+  });
   show('s-who');
 }
-function lessonBtn(l){
-  const b = document.createElement('button');
-  b.className = 'lesson' + (answered(l.id, me) ? ' done' : '');
-  const bar = document.createElement('span'); bar.className = 'bar'; bar.style.background = l.color || 'var(--lamp)';
-  const t = document.createElement('span');
-  t.innerHTML = '<div class="d"></div><div class="t"></div>';
-  t.querySelector('.d').textContent = l.disc + (l.today ? '' : ', ' + fmt(l.date)) + (answered(l.id, me) ? ' — ответ отправлен' : '');
-  t.querySelector('.t').textContent = l.title;
-  b.append(bar, t);
+function ticket(l, i){
+  const done = answered(l.id, me);
+  const b = el('button', 'ticket' + (done ? ' done' : ''));
+  b.style.setProperty('--i', i); b.style.setProperty('--c', l.color || 'var(--lamp)');
+  const row = el('span', 'row');
+  row.append(el('span', 'pill disc', l.disc));
+  row.append(el('span', 'pill' + (l.today ? ' now' : ''), l.today ? 'Сегодня' : fmt(l.date)));
+  if (done) row.append(el('span', 'pill sent', '✓ Отправлено'));
+  const go = el('span', 'go'); go.innerHTML = done ? '✓' : '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  b.append(row, el('span', 't', l.title), go);
   b.onclick = () => openLesson(l);
   return b;
 }
+function meBar(){
+  const s = student(), i = stIndex(me);
+  $('me-name').textContent = s.name; $('me-av').textContent = s.name[0]; $('me-av').style.setProperty('--c', AV[i % AV.length]);
+}
 function afterWho(){
-  $('me-name').textContent = D.students.find(s => s.id === me).name;
+  meBar();
   const today = D.lessons.filter(l => l.today), old = D.lessons.filter(l => !l.today);
   if (pre){ const l = D.lessons.find(x => x.id === pre); if (l) return openLesson(l); }
-  if (today.length === 1 && !old.length) return openLesson(today[0]);
-  $('today').replaceChildren(...today.map(lessonBtn));
-  if (!today.length) $('today').innerHTML = '<p class="hint">Сегодня уроков с самостоятельной нет — выберите прошлый.</p>';
-  $('old').replaceChildren(...old.map(lessonBtn));
+  if (today.length === 1 && !answered(today[0].id, me) && !old.some(l => !answered(l.id, me))) return openLesson(today[0]);
+  $('today').replaceChildren(...today.map(ticket));
+  if (!today.length) $('today').replaceChildren(el('p', 'empty', 'Сегодня уроков с самостоятельной нет. Если отвечаете за прошлый урок — откройте список ниже.'));
+  $('old').replaceChildren(...old.map(ticket));
   $('old-wrap').hidden = !old.length; $('old-wrap').open = !today.length;
   show('s-lesson');
 }
-function draftKey(){ return 'nht-ans-' + lesson.id + '-' + me; }
+function draftKey(){ return (DEMO ? 'nht-demo-' : 'nht-ans-') + lesson.id + '-' + me; }
+
+function grow(t){ t.style.height = 'auto'; t.style.height = Math.max(132, t.scrollHeight + 3) + 'px'; }
+function sync(){
+  let n = 0;
+  for (const k of [1, 2]){
+    const v = $('a' + k).value.trim(), on = !!v;
+    n += on;
+    $('card' + k).classList.toggle('filled', on);
+    $('st' + k).textContent = on ? 'Есть ответ' : 'Нет ответа';
+    $('d' + k).classList.toggle('on', on);
+    $('c' + k).textContent = $('a' + k).value.length + ' / 900';
+  }
+  $('ptext').textContent = 'Ответов: ' + n + ' из 2';
+  $('send').disabled = !n;
+  $('send').classList.toggle('ready', n === 2);
+  return n;
+}
 function openLesson(l){
   lesson = l;
   if (answered(l.id, me)) return done(false);
-  $('q-lesson').textContent = l.disc + ': ' + l.title;
+  $('q-disc').textContent = l.disc + (l.today ? ' · сегодня' : ' · ' + fmt(l.date));
+  $('q-lesson').textContent = l.title;
+  $('ql-av').textContent = l.disc[0]; $('ql-av').style.setProperty('--c', l.color || 'var(--lamp)');
   $('q1').textContent = l.q1; $('q2').textContent = l.q2;
-  const o = JSON.parse(store.get(draftKey()) || '{}');
+  let o = {}; try { o = JSON.parse(store.get(draftKey()) || '{}') } catch(e){}
   $('a1').value = o.a1 || ''; $('a2').value = o.a2 || '';
   $('msg').textContent = ''; $('msg').className = 'msg';
   show('s-q');
+  requestAnimationFrame(() => { grow($('a1')); grow($('a2')); });
+  sync();
 }
-function saveDraft(){ store.set(draftKey(), JSON.stringify({a1:$('a1').value, a2:$('a2').value})); }
-$('a1').oninput = saveDraft; $('a2').oninput = saveDraft;
+let svTimer;
+for (const k of [1, 2]){
+  $('a' + k).addEventListener('input', e => {
+    grow(e.target); sync();
+    store.set(draftKey(), JSON.stringify({a1:$('a1').value, a2:$('a2').value}));
+    const sv = $('sv' + k); sv.classList.add('on'); clearTimeout(svTimer); svTimer = setTimeout(() => sv.classList.remove('on'), 1400);
+  });
+}
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => b.dataset.go === 'who' ? renderWho() : afterWho());
+
+/* подтверждение */
+function openSheet(){
+  const e1 = !$('a1').value.trim(), e2 = !$('a2').value.trim();
+  $('sh-warn').hidden = !(e1 || e2);
+  $('sh-warn').textContent = (e1 ? 'Первый' : 'Второй') + ' вопрос без ответа — за него будет 0 баллов.';
+  $('sheet').hidden = false;
+  setTimeout(() => $('go').focus(), 50);
+}
+function closeSheet(){ $('sheet').hidden = true; }
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeSheet);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
+$('send').onclick = () => { if (sync()) openSheet(); };
 
 function burst(){
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const box = $('burst'), cols = ['#ffc94d','#57d9a3','#f4f2ff','#7fa8e0'];
-  const r = $('slate').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * .35;
-  for (let i = 0; i < 26; i++){
+  const box = $('burst'), cols = ['#ffc94d','#ff9f43','#5ee0a8','#f5f3ff','#8fb4ff'];
+  const r = $('slate').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * .3;
+  for (let i = 0; i < 34; i++){
     const p = document.createElement('i'); p.style.background = cols[i % cols.length];
+    if (i % 3 === 0){ p.style.width = '8px'; p.style.height = '8px'; p.style.borderRadius = '50%'; }
     p.style.left = cx + 'px'; p.style.top = cy + 'px'; box.append(p);
-    const a = Math.random() * Math.PI * 2, d = 90 + Math.random() * 140;
+    const a = Math.random() * Math.PI * 2, d = 100 + Math.random() * 160;
     p.animate([
       {opacity:1, transform:'translate(-50%,-50%) rotate(0)'},
-      {opacity:1, transform:'translate(' + Math.cos(a)*d + 'px,' + (Math.sin(a)*d - 40) + 'px) rotate(' + Math.random()*360 + 'deg)', offset:.6},
-      {opacity:0, transform:'translate(' + Math.cos(a)*d*1.1 + 'px,' + (Math.sin(a)*d + 120) + 'px) rotate(' + Math.random()*720 + 'deg)'}
-    ], {duration:1100 + Math.random()*500, delay:500, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards'}).onfinish = () => p.remove();
+      {opacity:1, transform:'translate(' + Math.cos(a)*d + 'px,' + (Math.sin(a)*d - 50) + 'px) rotate(' + Math.random()*360 + 'deg)', offset:.55},
+      {opacity:0, transform:'translate(' + Math.cos(a)*d*1.1 + 'px,' + (Math.sin(a)*d + 160) + 'px) rotate(' + Math.random()*720 + 'deg)'}
+    ], {duration:1200 + Math.random()*600, delay:560, easing:'cubic-bezier(.2,.7,.3,1)', fill:'forwards'}).onfinish = () => p.remove();
   }
 }
 function done(fresh){
-  $('sl-lesson').textContent = trunc(lesson.disc + ': ' + lesson.title, 34);
-  $('sl-who').textContent = D.students.find(s => s.id === me).name;
-  $('done-h').textContent = fresh ? 'Ответ записан' : 'Ответ уже отправлен';
-  $('done-p').textContent = fresh ? 'Можно убирать телефон.' : 'Повторно на этот урок ответить нельзя.';
+  $('sl-lesson').textContent = lesson.disc + ' · ' + (lesson.today ? 'сегодня' : fmt(lesson.date));
+  $('done-what').textContent = lesson.title;
+  const nm = student().name; $('sl-who').textContent = nm; $('sl-who').setAttribute('font-size', nm.length > 17 ? 15 : 19);
+  $('done-h').textContent = fresh ? 'Снято!' : 'Этот дубль уже снят';
+  $('done-p').textContent = fresh ? 'Ответ у преподавателя. Можно убирать телефон.' : 'На этот урок вы уже ответили. Второй раз отправить нельзя.';
+  const t = new Date();
+  $('stamp').textContent = fresh ? '✓ Отправлено в ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0') : '✓ Ответ на месте';
+  $('again').hidden = !DEMO;
   show('s-done');
   const sl = $('slate'), dt = $('done-text');
   sl.classList.remove('clap'); dt.classList.remove('show'); void sl.offsetWidth;
   sl.classList.add('clap'); dt.classList.add('show');
-  if (fresh){ burst(); if (navigator.vibrate) setTimeout(() => navigator.vibrate(30), 520); }
+  if (fresh){ burst(); if (navigator.vibrate) setTimeout(() => navigator.vibrate([20, 40, 30]), 560); }
 }
+$('again').onclick = () => { store.set(draftKey(), '{}'); afterWho(); };
 
-$('send').onclick = async () => {
-  const m = $('msg'), a1 = $('a1').value.trim(), a2 = $('a2').value.trim();
-  if (!a1 && !a2){ m.className = 'msg err'; m.textContent = 'Напишите ответ хотя бы на один вопрос.'; return; }
-  $('send').disabled = true; m.className = 'msg'; m.textContent = 'Отправляю…';
+$('go').onclick = async () => {
+  closeSheet();
+  const m = $('msg'), a1 = $('a1').value.trim(), a2 = $('a2').value.trim(), btn = $('send');
+  btn.disabled = true; btn.classList.add('busy'); m.className = 'msg'; m.textContent = '';
   try {
-    const r = await fetch(API + '?api=st_send&d=' + encodeURIComponent(JSON.stringify({lesson:lesson.id, st:me, q1:a1, q2:a2}))).then(r => r.json());
-    if (!r.ok) throw new Error(r.error || 'Сервер не принял ответ');
-    store.set('nht-sent-' + lesson.id + '-' + me, '1');
-    (D.answered[lesson.id] = D.answered[lesson.id] || []).push(me);
+    if (DEMO){ await new Promise(r => setTimeout(r, 900)); }
+    else {
+      const r = await fetch(API + '?api=st_send&d=' + encodeURIComponent(JSON.stringify({lesson:lesson.id, st:me, q1:a1, q2:a2}))).then(r => r.json());
+      if (!r.ok) throw new Error(r.error || 'Сервер не принял ответ');
+      store.set(sentKey(lesson.id, me), '1');
+      (D.answered[lesson.id] = D.answered[lesson.id] || []).push(me);
+    }
     done(true);
   } catch(e){
     m.className = 'msg err';
-    m.textContent = /уже отправлен/.test(e.message) ? 'Ответ на этот урок уже отправлен.' : 'Не отправилось: ' + e.message + '. Текст сохранён, нажмите ещё раз.';
-    if (/уже отправлен/.test(e.message)) { store.set('nht-sent-' + lesson.id + '-' + me, '1'); setTimeout(() => done(false), 900); }
-  } finally { $('send').disabled = false; }
+    if (/уже отправлен/.test(e.message)){ m.textContent = 'Ответ на этот урок уже отправлен.'; store.set(sentKey(lesson.id, me), '1'); setTimeout(() => done(false), 900); }
+    else m.textContent = 'Не отправилось: ' + e.message + '. Текст сохранён — нажмите ещё раз.';
+  } finally { btn.classList.remove('busy'); sync(); }
 };
 
-fetch(API + '?api=st').then(r => r.json()).then(d => {
-  if (!d.ok) throw new Error(d.error || 'ошибка сервера');
+const DEMO_STUDENTS = ['Бакалова У.','Воробьева В.','Жеребятьева А.','Маликова П.','Панамаренко А.','Перов Д.','Сидоров М.','Сокальская Д.','Шаулин А.','Шмаёвка В.'].map((n, i) => ({id:'demo-' + i, name:n}));
+function demoData(students){
+  const today = new Date().toISOString().slice(0, 10);
+  return {ok:true, today, students: students && students.length ? students : DEMO_STUDENTS, answered:{}, lessons:[
+    {id:'demo-1', title:'Народная педагогика: как учили без школы', disc:'НХТ', color:'#e0a96d', date:today, today:true,
+     q1:'Назовите три части детского фольклора и приведите пример к каждой.', q2:'Чем «школа на ходу» отличается от обучения в художественной школе?'},
+    {id:'demo-2', title:'Сценарий: форма и разметка', disc:'Операторское', color:'#7fa8e0', date:'2026-10-23', today:false,
+     q1:'Запишите по правилам сценария начало сцены: в столовой колледжа днём студент роняет поднос. Заголовок, ремарка, одна реплика.', q2:'Чем литературный сценарий отличается от режиссёрского?'}
+  ]};
+}
+function start(d){
   D = d;
   if (!d.lessons.length) return show('s-none');
   const saved = store.get('nht-me');
   me = d.students.some(s => s.id === saved) ? saved : null;
   me ? afterWho() : renderWho();
-}).catch(e => { $('fail-p').textContent = 'Проверьте интернет и обновите страницу. (' + e.message + ')'; show('s-fail'); });
+}
+fetch(API + '?api=st').then(r => r.json()).then(d => {
+  if (!d.ok) throw new Error(d.error || 'ошибка сервера');
+  start(DEMO ? demoData(d.students) : d);
+}).catch(e => {
+  if (DEMO) return start(demoData());
+  $('fail-p').textContent = 'Проверьте интернет и обновите страницу. (' + e.message + ')'; show('s-fail');
+});
 </script>
 </body>
 </html>
