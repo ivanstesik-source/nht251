@@ -448,6 +448,7 @@ function movePill(){ const b = document.querySelector('#tabs button[aria-pressed
 function tab(v){ for (const b of document.querySelectorAll('#tabs button')) b.setAttribute('aria-pressed', b.dataset.v === v); for (const s of ['week','discs','labs','ans']) $('v-' + s).hidden = s !== v; store.set('nht-tab', v); movePill(); if (v === 'week') renderWeek(true); }
 $('tabs').onclick = e => { const v = e.target.dataset?.v; if (v) tab(v); };
 window.addEventListener('resize', movePill);
+if (document.fonts) document.fonts.ready.then(movePill);
 $('prev').onclick = () => { weekStart.setDate(weekStart.getDate() - 7); renderWeek(true); };
 $('next').onclick = () => { weekStart.setDate(weekStart.getDate() + 7); renderWeek(true); };
 $('now').onclick = () => { weekStart = monday(new Date()); renderWeek(true); };
