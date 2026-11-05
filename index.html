@@ -160,6 +160,23 @@ textarea{min-height:80px;resize:vertical}
 .gate h1{font-size:30px}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition:none!important}}
+
+/* общая ведомость преподавателя */
+.grade-table thead th{max-width:190px;min-width:104px;white-space:normal;line-height:1.4}
+.grade-table tbody th{white-space:nowrap;color:var(--light);font-size:13px}
+.grade-table th:first-child{position:sticky;left:0;z-index:1;background:var(--screen);min-width:130px}
+.grade-table thead th:first-child{z-index:2}
+.work-kind{display:block;color:var(--lamp-text);font-size:10px;margin-bottom:5px}
+.grade-table .cell button{min-height:44px;min-width:76px}
+.grade-table .cell button.pending{color:var(--lamp-text);border-color:var(--lamp-text);border-style:dashed}
+.grade-table .cell strong{font-size:14px}.grade-table .cell small{display:block;margin-top:4px}
+.grade-table .cell button.m5{color:var(--done)}.grade-table .cell button.m4{color:var(--lamp-text)}.grade-table .cell button.m3{color:var(--part)}
+.grade-dialog{box-sizing:border-box;width:min(600px,calc(100% - 24px));max-height:calc(100dvh - 32px);overflow:auto;background:var(--screen);color:var(--light);border:1px solid var(--line);border-radius:20px;padding:22px}
+.grade-dialog::backdrop{background:#080b20b8}.grade-dialog h2{font:500 20px var(--ui);margin:0 0 8px}
+.grade-dialog form{display:grid;gap:16px}.grade-dialog label,.grade-dialog input,.grade-dialog select,.grade-dialog textarea{min-width:0;max-width:100%;box-sizing:border-box}
+.grade-dialog .grade-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grade-dialog #grade-answers{display:grid;gap:14px;overflow-wrap:anywhere}.grade-dialog #grade-work{overflow-wrap:anywhere}
+.grade-dialog #grade-message{overflow-wrap:anywhere}.grade-dialog .row{flex-wrap:wrap;gap:10px}
 </style>
 </head>
 <body>
@@ -177,7 +194,7 @@ textarea{min-height:80px;resize:vertical}
       <span class="pill-bg" id="pill"></span>
       <button data-v="week" aria-pressed="true">Неделя</button>
       <button data-v="discs" aria-pressed="false">Дисциплины</button>
-      <button data-v="labs" aria-pressed="false">Сдача работ</button>
+      <button data-v="labs" aria-pressed="false">Оценки и сдачи</button>
       <button data-v="ans" aria-pressed="false">Ответы</button>
     </nav>
   </header>
@@ -199,7 +216,7 @@ textarea{min-height:80px;resize:vertical}
   <section id="v-labs" hidden>
     <div class="toolbar"><label>Дисциплина<select id="labdisc"></select></label></div>
     <div class="tbl" id="labtbl"></div>
-    <p class="sub">Нажатие по клетке меняет статус по кругу: нет → в работе → доработка → сдано.</p>
+    <p class="sub">Нажмите на клетку, чтобы посмотреть или изменить оценку, баллы и комментарий. ДЗ — домашнее задание, ЛР — лабораторная, КР — контрольная, СР — самостоятельная. «Проверить» — работа есть, оценки ещё нет. «—» — нет отметки; это не оценка и не подтверждение долга.</p>
   </section>
 
   <section id="v-ans" hidden>
@@ -230,6 +247,23 @@ textarea{min-height:80px;resize:vertical}
 </aside>
 
 <div class="qr" id="qr" hidden title="Нажмите, чтобы закрыть"><div class="card"><b>Самостоятельная работа</b><div class="code" id="qrcode"></div><span>Наведите камеру телефона на код</span></div></div>
+
+
+<dialog class="grade-dialog" id="grade-dialog" aria-labelledby="grade-title">
+<form id="grade-form">
+  <div><h2 id="grade-title"></h2><div class="sub" id="grade-work"></div></div>
+  <div id="grade-answers"></div>
+  <label>Оценка<select id="grade-mark"><option value="">Не проверено</option><option>5</option><option>4</option><option>3</option><option>2</option><option>доработка</option></select></label>
+  <div id="grade-practical">
+    <label>Статус сдачи<select id="grade-status"><option value="">Нет отметки</option><option value="work">В работе</option><option value="fix">Доработка</option><option value="done">Сдано</option></select></label>
+    <div class="grade-fields" style="margin-top:12px"><label>Баллы<input id="grade-score" type="number" min="0" step="0.5"></label><label>Максимум баллов<input id="grade-max" type="number" min="0.5" step="0.5"></label></div>
+  </div>
+  <div class="grade-fields" id="grade-written"><label>Баллы за вопрос 1<input id="grade-score1" type="number" min="0" step="1"></label><label>Баллы за вопрос 2<input id="grade-score2" type="number" min="0" step="1"></label></div>
+  <label>Комментарий<textarea id="grade-note" rows="4"></textarea></label>
+  <div class="row"><button class="btn primary" id="grade-save" type="submit">Сохранить</button><button class="btn" id="grade-cancel" type="button">Закрыть</button></div>
+  <div class="sub" id="grade-message" role="status" aria-live="polite"></div>
+</form>
+</dialog>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzrhUKSL_de2aqekOW0BiGH3ODW16WUdUN9-HkqII8hmq-QA0Q6yvRcab0NZCNyTnZf/exec';
@@ -287,19 +321,77 @@ function renderDiscs(){
       el('details', {}, el('summary', {}, 'Все уроки (' + ls.length + ')'), el('div', {class:'ls', style:'margin-top:8px'}, ls.map(l => lessonBtn(l, true))))));
   }
 }
-function renderLabs(){
-  const sel = $('labdisc'); const ds = [...new Set([...labs.values()].map(x => x.disc))];
-  if (sel.options.length !== ds.length){ const v = sel.value || store.get('nht-labdisc'); sel.replaceChildren(...ds.map(id => el('option', {value:id}, discOf(id).name))); if (ds.includes(v)) sel.value = v; }
-  const L = [...labs.values()].filter(x => x.disc === sel.value).sort((a,b) => (a.order || 0) - (b.order || 0));
-  const st = meta?.students || [];
-  const short = t => (t.match(/(ЛР\s?\d+|ДЗ\s?\d+)/) || [t.slice(0, 14)])[0];
-  $('labtbl').replaceChildren(el('table', {},
-    el('thead', {}, el('tr', {}, el('th', {}, 'Студент'), L.map(x => el('th', {title:x.title + (x.due ? ', срок ' + dm(x.due) : '')}, short(x.title), x.due ? el('div', {class:'sub'}, 'до ' + dm(x.due)) : null)))),
-    el('tbody', {}, st.map(s => el('tr', {}, el('td', {}, s.name), L.map(x => { const v = (subs.get(x.id + '~' + s.id) || {}).status || ''; return el('td', {class:'cell'}, el('button', {class:'st-' + v, onclick:() => cycle(x.id, s.id, v)}, SUBL[v])); })))),
-    el('tfoot', {}, el('tr', {}, el('td', {class:'sub'}, 'Сдано'), L.map(x => el('td', {class:'sub num'}, st.filter(s => (subs.get(x.id + '~' + s.id) || {}).status === 'done').length + ' из ' + st.length))))));
+function journalWorks(disc){
+  const practical = [...labs.values()].filter(x => x.disc === disc && !/отменено|не выдавалось/i.test(x.title)).map(x => ({...x, collection:'subs', kind:/^hw/.test(x.id) ? 'ДЗ' : 'ЛР'}));
+  const written = [...lessons.values()].filter(x => x.disc === disc && x.selfwork?.q1 && (x.status === 'done' || [...answers.values()].some(a => a.lesson === x.id))).map(x => ({...x, collection:'answers', kind:x.selfwork.kind === 'control' ? 'КР' : 'СР'}));
+  return [...practical, ...written].sort((a,b) => ({'ДЗ':0,'ЛР':1,'КР':2,'СР':3}[a.kind] - {'ДЗ':0,'ЛР':1,'КР':2,'СР':3}[b.kind]) || ((a.order ?? a.n ?? 0) - (b.order ?? b.n ?? 0)));
 }
-async function cycle(lab, st, v){ const n = SUB[(SUB.indexOf(v) + 1) % SUB.length]; subs.set(lab + '~' + st, {lab, st, status:n}); renderLabs();
-  try { await write('subs', lab + '~' + st, {lab, st, status:n}, 'set'); } catch(e){ subs.set(lab + '~' + st, {lab, st, status:v}); renderLabs(); $('status').textContent = 'Отметка не сохранилась: ' + e.message; } }
+function journalLabel(work){
+  if (work.collection === 'answers') return work.kind + ' · урок ' + work.n;
+  const n = work.title.match(/ЛР\s?(\d+)/);
+  return n && work.kind === 'ЛР' ? 'ЛР' + n[1] : work.title.replace(/^ДЗ до 26\.10:\s*/,'').replace(/^ДЗ\s*\d*[.:]?\s*/,'');
+}
+function journalState(record, work){
+  if (!record) return '—';
+  if (record.mark) return record.mark;
+  if (work.collection === 'answers' || /содержание не проверено/.test(record.note || '')) return 'Проверить';
+  return SUBL[record.status || ''] || '—';
+}
+function renderLabs(){
+  const sel = $('labdisc'), ds = [...new Set([...labs.values(), ...lessons.values()].map(x => x.disc))], previous = sel.value || store.get('nht-labdisc');
+  sel.replaceChildren(...ds.map(id => el('option', {value:id}, discOf(id).name)));
+  if (ds.includes(previous)) sel.value = previous;
+  const works = journalWorks(sel.value), students = meta?.students || [];
+  $('labtbl').replaceChildren(el('table', {class:'grade-table'},
+    el('thead', {}, el('tr', {}, el('th', {scope:'col'}, 'Студент'), works.map(w => el('th', {scope:'col', title:w.title}, el('span', {class:'work-kind'}, w.kind), el('div', {}, journalLabel(w)), w.date ? el('div', {class:'sub'}, dm(w.date)) : null)))),
+    el('tbody', {}, students.map(s => el('tr', {}, el('th', {scope:'row'}, s.name), works.map(w => {
+      const record = (w.collection === 'answers' ? answers : subs).get(w.id + '~' + s.id), label = journalState(record,w);
+      const grade = record?.mark, state = record?.status || '';
+      return el('td', {class:'cell'}, el('button', {class:'st-' + state + ' ' + markClass(grade) + (label === 'Проверить' ? ' pending' : ''), 'data-work':w.id, 'data-student':s.id, 'aria-label':s.name + ': ' + w.title + ', ' + label, title:record?.note || w.title, onclick:() => openGrade(w,s)}, el('strong', {}, label), grade && state === 'fix' ? el('small', {}, 'доработка') : null));
+    }))))));
+  if (!works.length) $('labtbl').replaceChildren(el('p', {class:'sub',style:'padding:16px'}, 'Работ пока нет.'));
+}
+let gradeEditing = null, gradeReturnFocus = null;
+function openGrade(work, student){
+  const id = work.id + '~' + student.id, isAnswer = work.collection === 'answers';
+  const record = (isAnswer ? answers : subs).get(id) || {};
+  gradeEditing = {work, student, id}; gradeReturnFocus = document.activeElement;
+  $('grade-title').textContent = student.name + ' · ' + work.kind;
+  $('grade-work').textContent = work.title;
+  $('grade-mark').value = record.mark || ''; $('grade-note').value = record.note || '';
+  $('grade-status').value = record.status || '';
+  $('grade-practical').hidden = isAnswer; $('grade-written').hidden = !isAnswer;
+  $('grade-score').value = record.score ?? ''; $('grade-max').value = record.maxScore ?? '';
+  const maximum = (work.selfwork?.max || 4)/2;
+  for (const i of [1,2]) { $('grade-score'+i).max = maximum; $('grade-score'+i).value = record['score'+i] ?? ''; }
+  $('grade-answers').replaceChildren();
+  if (isAnswer){
+    if (record.lesson){
+      for (const i of [1,2]) $('grade-answers').append(el('div', {class:'qa'}, el('b', {}, work.selfwork['q'+i]), el('div', {style:'white-space:pre-wrap'}, record['q'+i] || '—')));
+    } else $('grade-answers').append(el('p', {class:'sub'}, 'Ответ не получен. Оценка автоматически не ставится.'));
+  }
+  $('grade-message').textContent = ''; $('grade-save').disabled = isAnswer && !record.lesson;
+  $('grade-dialog').showModal(); $('grade-mark').focus();
+}
+function closeGrade(){ $('grade-dialog').close(); gradeEditing = null; gradeReturnFocus?.focus(); }
+async function saveGrade(){
+  if (!gradeEditing || !$('grade-form').reportValidity()) return;
+  const session = gradeEditing;
+  const {work, student, id} = session, isAnswer = work.collection === 'answers', records = isAnswer ? answers : subs;
+  const number = field => $(field).value === '' ? '' : Number($(field).value);
+  if (!isAnswer && $('grade-score').value !== '' && $('grade-max').value !== '' && number('grade-score') > number('grade-max')) { $('grade-message').textContent = 'Баллы не могут быть больше максимума.'; return; }
+  const patch = {mark:$('grade-mark').value, note:$('grade-note').value.trim(), byTeacher:true};
+  if (isAnswer){ patch.score1 = number('grade-score1'); patch.score2 = number('grade-score2'); }
+  else Object.assign(patch, {lab:work.id, st:student.id, status:$('grade-status').value, score:number('grade-score'), maxScore:number('grade-max')});
+  $('grade-save').disabled = true; $('grade-message').textContent = 'Сохраняю…';
+  try {
+    await write(work.collection, id, patch, 'update');
+    records.set(id, {...records.get(id), ...patch});
+    store.set('nht-dump', JSON.stringify({meta:{main:meta},lessons:Object.fromEntries(lessons),labs:Object.fromEntries(labs),subs:Object.fromEntries(subs),answers:Object.fromEntries(answers)}));
+    renderLabs(); renderAns(); if (gradeEditing === session) closeGrade();
+  } catch(e){ if (gradeEditing === session) $('grade-message').textContent = 'Не сохранилось: ' + e.message + '. Введённые данные остались в форме.'; else $('status').textContent = student.name + ': оценка не сохранилась — ' + e.message; }
+  finally { if (gradeEditing === session) $('grade-save').disabled = false; }
+}
 
 function swLessons(){ const t = iso(new Date()); return [...lessons.values()].filter(l => l.selfwork && l.selfwork.q1 && (l.date || '') <= t).sort((a,b) => (b.date || '').localeCompare(a.date || '') || (a.n || 0) - (b.n || 0)); }
 function markClass(m){ return m === '5' ? 'm5' : m === '4' ? 'm4' : m === '3' ? 'm3' : m ? 'mx' : ''; }
@@ -361,6 +453,9 @@ $('next').onclick = () => { weekStart.setDate(weekStart.getDate() + 7); renderWe
 $('now').onclick = () => { weekStart = monday(new Date()); renderWeek(true); };
 $('labdisc').onchange = () => { store.set('nht-labdisc', $('labdisc').value); renderLabs(); };
 $('anssel').onchange = renderAns;
+$('grade-form').onsubmit = e => { e.preventDefault(); saveGrade(); };
+$('grade-cancel').onclick = closeGrade;
+$('grade-dialog').addEventListener('cancel', () => { gradeEditing = null; });
 
 function showQR(){
   const q = qrcode(0, 'M'); q.addData(STUDENT_URL); q.make();
@@ -384,7 +479,7 @@ async function load(){
 }
 function start(){ $('gate').hidden = true; $('app').hidden = false; const t = store.get('nht-tab'); tab(t && $('v-' + t) ? t : 'week'); requestAnimationFrame(movePill); load(); }
 $('gate-go').onclick = () => { let k = $('gate-key').value.trim(); const mm = k.match(/k=([^&\s#]+)/); if (mm) k = decodeURIComponent(mm[1]); if (!k) return; KEY = k; store.set('nht-key', k); start(); };
-document.addEventListener('visibilitychange', () => { if (!document.hidden && KEY && $('panel').hidden) load(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden && KEY && $('panel').hidden && !$('grade-dialog').open) load(); });
 KEY ? start() : ($('gate').hidden = false);
 </script>
 </body>
